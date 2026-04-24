@@ -5,7 +5,7 @@
 
 ## Equipo
 
-* **Integrante 1:** __________________________
+* **Integrante 1:** Camila Andrea Preciado Quiñones
 * **Integrante 2:** __________________________
 * **Integrante 3:** Nathalia Mejia Buitrago
 ---
