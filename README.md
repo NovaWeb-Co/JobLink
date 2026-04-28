@@ -23,31 +23,26 @@ Ser una organización líder en el desarrollo de soluciones web para negocios co
 
 ---
 
-## Nuestro Equipo
+##  Nuestro Equipo
 
+###  Camila A. Preciado Q.
+**Cargo:** Líder Técnico  
 
-<table align="center">
-  <tr>
-    <td align="center">
-      <img src="https://github.com/NovaWeb-Co/JobLink/blob/f9a672c6dddfc5264616b9bc1a67da4b5612dc15/camilafp.png" width="150px" alt="Camila A. Preciado Q."><br><br>
-      <strong>Camila A. Preciado Q.</strong><br>
-      <sub>Tech Lead</sub>
-    </td>
+<img src="https://github.com/NovaWeb-Co/JobLink/blob/f9a672c6dddfc5264616b9bc1a67da4b5612dc15/camilafp.png" width="150px" alt="Camila A. Preciado Q.">
 
-    <td align="center">
-      <img src="https://github.com/NovaWeb-Co/JobLink/blob/f9a672c6dddfc5264616b9bc1a67da4b5612dc15/nathalia.png" width="150px" alt="Nathalia Mejia Buitrago"><br><br>
-      <strong>Nathalia Mejia Buitrago</strong><br>
-      <sub>Frontend </sub>
-    </td>
+---
 
-    <td align="center">
-      <img src="https://github.com/NovaWeb-Co/JobLink/blob/f9a672c6dddfc5264616b9bc1a67da4b5612dc15/camilo.png" width="150px" alt="Juan C. Quiñones G."><br><br>
-      <strong>Juan C. Quiñones G.</strong><br>
-      <sub>Backend </sub>
-    </td>
-  </tr>
-</table>
+###  Nathalia Mejia Buitrago
+**Cargo:** Frontend Developer  
 
+<img src="https://github.com/NovaWeb-Co/JobLink/blob/f9a672c6dddfc5264616b9bc1a67da4b5612dc15/nathalia.png" width="150px" alt="Nathalia Mejia Buitrago">
+
+---
+
+###  Juan C. Quiñones G.
+**Cargo:** Backend Developer  
+
+<img src="https://github.com/NovaWeb-Co/JobLink/blob/f9a672c6dddfc5264616b9bc1a67da4b5612dc15/camilo.png" width="150px" alt="Juan C. Quiñones G.">
 ---
 
 ## Servicios
