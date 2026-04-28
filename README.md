@@ -25,24 +25,25 @@ Ser una organización líder en el desarrollo de soluciones web para negocios co
 
 ## Nuestro Equipo
 
+
 <table align="center">
   <tr>
-    <td align="center" width="250">
+    <td align="center">
       <img src="https://github.com/NovaWeb-Co/JobLink/blob/f9a672c6dddfc5264616b9bc1a67da4b5612dc15/camilafp.png" width="150px" alt="Camila A. Preciado Q."><br><br>
       <strong>Camila A. Preciado Q.</strong><br>
       <sub>Tech Lead</sub>
     </td>
 
-    <td align="center" width="250">
+    <td align="center">
       <img src="https://github.com/NovaWeb-Co/JobLink/blob/f9a672c6dddfc5264616b9bc1a67da4b5612dc15/nathalia.png" width="150px" alt="Nathalia Mejia Buitrago"><br><br>
       <strong>Nathalia Mejia Buitrago</strong><br>
-      <sub>Frontend Developer</sub>
+      <sub>Frontend </sub>
     </td>
 
-    <td align="center" width="250">
+    <td align="center">
       <img src="https://github.com/NovaWeb-Co/JobLink/blob/f9a672c6dddfc5264616b9bc1a67da4b5612dc15/camilo.png" width="150px" alt="Juan C. Quiñones G."><br><br>
       <strong>Juan C. Quiñones G.</strong><br>
-      <sub>Backend Developer</sub>
+      <sub>Backend </sub>
     </td>
   </tr>
 </table>
