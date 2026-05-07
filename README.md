@@ -43,6 +43,7 @@ Ser una organización líder en el desarrollo de soluciones web para negocios co
 *Cargo: Backend Developer*  
 
 <img src="https://github.com/NovaWeb-Co/JobLink/blob/f9a672c6dddfc5264616b9bc1a67da4b5612dc15/camilo.png" width="150px" alt="Juan C. Quiñones G.">
+
 ---
 
 ## Servicios
