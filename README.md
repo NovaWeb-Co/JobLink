@@ -70,4 +70,4 @@ Ser una organización líder en el desarrollo de soluciones web para negocios co
 - Git & GitHub
 ---
 
-⭐ Gracias por visitar nuestro repositorio
+Gracias por visitarnos
