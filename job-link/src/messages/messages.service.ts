@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
@@ -70,4 +70,43 @@ export class MessagesService {
             where: { id },
         });
     }
+
+    //Eliminar un servicio sin afectar a los demas
+    async removeMessageFromUser(
+        userId: number,
+        messageId: number,
+    ) {
+
+        const message = await this.prisma.message.findUnique({
+            where: {
+                id: messageId,
+            },
+        });
+
+        if (!message) {
+            throw new NotFoundException(
+                `Message ${messageId} no existe`,
+            );
+        }
+
+        if (
+            message.senderId !== userId &&
+            message.receiverId !== userId
+        ) {
+            throw new BadRequestException(
+                `El mensaje no pertenece al usuario ${userId}`,
+            );
+        }
+
+        await this.prisma.message.delete({
+            where: {
+                id: messageId,
+            },
+        });
+
+        return {
+            message: `Mensaje ${messageId} eliminado correctamente`,
+        };
+    }
+
 }

@@ -42,4 +42,15 @@ export class ServicesController {
     ) {
         await this.servicesService.remove(id);
     }
+
+    @Delete(':userId/remove-service/:serviceId')
+    removeServiceFromUser(
+        @Param('userId', ParseIntPipe) userId: number,
+        @Param('serviceId', ParseIntPipe) serviceId: number,
+    ) {
+        return this.servicesService.removeServiceFromUser(
+            userId,
+            serviceId,
+        );
+    }
 }

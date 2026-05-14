@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
@@ -6,7 +6,7 @@ import { UpdateRequestDto } from './dto/update-request.dto';
 @Injectable()
 export class RequestsService {
 
-  constructor( private readonly prisma: PrismaService ) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(dto: CreateRequestDto) {
     return this.prisma.request.create({
@@ -52,7 +52,7 @@ export class RequestsService {
     return request;
   }
 
-  async update( id: number, dto: UpdateRequestDto ) {
+  async update(id: number, dto: UpdateRequestDto) {
     await this.findOne(id);
     return this.prisma.request.update({
       where: { id },
@@ -70,4 +70,41 @@ export class RequestsService {
       where: { id },
     });
   }
+
+  //Eliminar una solicitud sin afectar a los demas
+
+  async removeRequestFromUser(
+    userId: number,
+    requestId: number,
+  ) {
+
+    const request = await this.prisma.request.findUnique({
+      where: {
+        id: requestId,
+      },
+    });
+
+    if (!request) {
+      throw new NotFoundException(
+        `Request ${requestId} no existe`,
+      );
+    }
+
+    if (request.userId !== userId) {
+      throw new BadRequestException(
+        `La solicitud no pertenece al usuario ${userId}`,
+      );
+    }
+
+    await this.prisma.request.delete({
+      where: {
+        id: requestId,
+      },
+    });
+
+    return {
+      message: `Solicitud ${requestId} eliminada correctamente`,
+    };
+  }
+
 }

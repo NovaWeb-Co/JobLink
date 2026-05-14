@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
@@ -73,5 +73,41 @@ export class ServicesService {
         await this.prisma.service.delete({
             where: { id },
         });
+    }
+
+    //Eliminar un servicio sin afectar a los demas
+    async removeServiceFromUser(userId: number, serviceId: number) {
+
+        // Buscar el servicio
+        const service = await this.prisma.service.findUnique({
+            where: {
+                id: serviceId,
+            },
+        });
+
+        // Validar existencia
+        if (!service) {
+            throw new NotFoundException(
+                `Service ${serviceId} no existe`,
+            );
+        }
+
+        // Validar propietario
+        if (service.userId !== userId) {
+            throw new BadRequestException(
+                `El servicio no pertenece al usuario ${userId}`,
+            );
+        }
+
+        // Eliminar SOLO ese servicio
+        await this.prisma.service.delete({
+            where: {
+                id: serviceId,
+            },
+        });
+
+        return {
+            message: `Servicio ${serviceId} eliminado correctamente`,
+        };
     }
 }

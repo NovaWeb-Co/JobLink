@@ -44,4 +44,15 @@ export class RatingsController {
     ) {
         await this.ratingsService.remove(id);
     }
+
+    @Delete(':userId/remove-rating/:ratingId')
+    removeRatingFromUser(
+        @Param('userId', ParseIntPipe) userId: number,
+        @Param('ratingId', ParseIntPipe) ratingId: number,
+    ) {
+        return this.ratingsService.removeRatingFromUser(
+            userId,
+            ratingId,
+        );
+    }
 }

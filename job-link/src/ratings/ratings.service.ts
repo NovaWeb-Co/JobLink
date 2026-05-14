@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateRatingDto } from './dto/create-rating.dto';
 import { UpdateRatingDto } from './dto/update-rating.dto';
@@ -69,5 +69,40 @@ export class RatingsService {
         await this.prisma.rating.delete({
             where: { id },
         });
+    }
+
+    //Eliminar una calificacion sin afectar a los demas
+    async removeRatingFromUser(
+        userId: number,
+        ratingId: number,
+    ) {
+
+        const rating = await this.prisma.rating.findUnique({
+            where: {
+                id: ratingId,
+            },
+        });
+
+        if (!rating) {
+            throw new NotFoundException(
+                `Rating ${ratingId} no existe`,
+            );
+        }
+
+        if (rating.userId !== userId) {
+            throw new BadRequestException(
+                `La calificación no pertenece al usuario ${userId}`,
+            );
+        }
+
+        await this.prisma.rating.delete({
+            where: {
+                id: ratingId,
+            },
+        });
+
+        return {
+            message: `Calificación ${ratingId} eliminada correctamente`,
+        };
     }
 }

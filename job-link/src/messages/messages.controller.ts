@@ -44,4 +44,15 @@ export class MessagesController {
     ) {
         await this.messagesService.remove(id);
     }
+
+    @Delete(':userId/remove-message/:messageId')
+    removeMessageFromUser(
+        @Param('userId', ParseIntPipe) userId: number,
+        @Param('messageId', ParseIntPipe) messageId: number,
+    ) {
+        return this.messagesService.removeMessageFromUser(
+            userId,
+            messageId,
+        );
+    }
 }

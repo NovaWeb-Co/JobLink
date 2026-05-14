@@ -44,4 +44,15 @@ export class RequestsController {
     ) {
         await this.requestsService.remove(id);
     }
+
+    @Delete(':userId/remove-request/:requestId')
+    removeRequestFromUser(
+        @Param('userId', ParseIntPipe) userId: number,
+        @Param('requestId', ParseIntPipe) requestId: number,
+    ) {
+        return this.requestsService.removeRequestFromUser(
+            userId,
+            requestId,
+        );
+    }
 }
