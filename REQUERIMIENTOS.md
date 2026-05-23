@@ -56,27 +56,27 @@ El cliente indicó que el avance va bastante bien y que la aplicación ya transm
 
 **Ajustes solicitados:**
 
-- REQ-04: (Alta prioridad) Mejorar la confianza visual de los perfiles y servicios:
+1: (Alta prioridad) Mejorar la confianza visual de los perfiles y servicios:
    - Agregar imágenes por defecto en las tarjetas de servicios.
    - Mejorar los perfiles de trabajadores con: foto, descripción corta, experiencia y calificación visible.
 
-- REQ-05: (Alta prioridad) Mejorar el proceso de registro:
+2: (Alta prioridad) Mejorar el proceso de registro:
    - Diferenciar mejor entre clientes y trabajadores independientes.
    - Para trabajadores: agregar categoría principal de servicio, breve descripción y zona donde trabaja.
 
-- REQ-06: (Media prioridad) Mejorar la experiencia móvil y jerarquía visual:
+3: (Media prioridad) Mejorar la experiencia móvil y jerarquía visual:
    - Optimizar tamaños de botones, espaciados y formularios en dispositivos móviles.
    - Mejorar legibilidad del texto en el hero.
    - Destacar más los botones principales.
 
-- REQ-07: (Media prioridad) Hacer la publicación más guiada:
+4: (Media prioridad) Hacer la publicación más guiada:
    - Agregar ayudas y ejemplos en los campos (descripción del problema, urgencia, horario deseado).
 
 ### Nuevos requerimientos prioritarios
 
-- REQ-08: **Perfil completo del trabajador independiente** (foto, descripción, experiencia, calificación, servicios que ofrece y zona de trabajo).
-- REQ-09: **Sistema básico de calificaciones y comentarios**.
-- REQ-10: **Optimización responsive / experiencia móvil**.
-- REQ-11: Mejorar confianza visual (imágenes por defecto y estados vacíos).
-- REQ-12: Formularios más guiados con textos de ayuda.
+- REQ-04: **Perfil completo del trabajador independiente** (foto, descripción, experiencia, calificación, servicios que ofrece y zona de trabajo).
+- REQ-05: **Sistema básico de calificaciones y comentarios**.
+- REQ-06: **Optimización responsive / experiencia móvil**.
+- REQ-07: Mejorar confianza visual (imágenes por defecto y estados vacíos).
+- REQ-08: Formularios más guiados con textos de ayuda.
    
