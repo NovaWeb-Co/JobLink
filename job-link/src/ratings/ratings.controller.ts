@@ -1,20 +1,22 @@
-// ratings.controller.ts
-
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { RatingsService } from './ratings.service';
 import { CreateRatingDto } from './dto/create-rating.dto';
 import { UpdateRatingDto } from './dto/update-rating.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('ratings')
 export class RatingsController {
 
     constructor(private readonly ratingsService: RatingsService) { }
 
+    @UseGuards(JwtAuthGuard)
     @Get()
     async findAll() {
         return this.ratingsService.findAll();
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post()
     async create(
         @Body() dto: CreateRatingDto,

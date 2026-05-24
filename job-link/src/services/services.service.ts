@@ -31,9 +31,27 @@ export class ServicesService {
                 id: 'asc',
             },
             include: {
-                user: true,
-                requests: true,
-                ratings: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        lastname: true,
+                        profilePhoto: true,
+                    },
+                },
+
+                ratings: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                lastname: true,
+                                profilePhoto: true,
+                            },
+                        },
+                    },
+                },
             },
         });
     }

@@ -2,6 +2,8 @@ import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Po
 import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('services')
 export class ServicesController {
@@ -13,6 +15,7 @@ export class ServicesController {
         return this.servicesService.findAll();
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post()
     async create(
         @Body() dto: CreateServiceDto,

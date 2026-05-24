@@ -22,6 +22,8 @@ model User {
   address String?
   profilePhoto String?
 
+  role Role @default(USER)
+
   isActive Boolean @default(true)
 
   createdAt DateTime @default(now())
@@ -115,4 +117,9 @@ enum RequestStatus {
   ACCEPTED
   COMPLETED
   CANCELED
+}
+
+enum Role {
+  USER
+  ADMIN
 }

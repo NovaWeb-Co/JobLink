@@ -4,17 +4,21 @@ import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Po
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('messages')
 export class MessagesController {
 
     constructor(private readonly messagesService: MessagesService) { }
 
+    @UseGuards(JwtAuthGuard)
     @Get()
     async findAll() {
         return this.messagesService.findAll();
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post()
     async create(
         @Body() dto: CreateMessageDto,

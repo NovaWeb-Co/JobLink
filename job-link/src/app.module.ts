@@ -9,6 +9,7 @@ import { ServicesModule } from './services/services.module';
 import { RequestsModule } from './requests/requests.module';
 import { RatingsModule } from './ratings/ratings.module';
 import { MessagesModule } from './messages/messages.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [HealthModule, UsersModule, PrismaModule,
@@ -20,6 +21,7 @@ import { MessagesModule } from './messages/messages.module';
     RequestsModule,
     RatingsModule,
     MessagesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

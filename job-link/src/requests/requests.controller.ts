@@ -4,17 +4,21 @@ import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Po
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('requests')
 export class RequestsController {
 
     constructor(private readonly requestsService: RequestsService) { }
 
+    @UseGuards(JwtAuthGuard)
     @Get()
     async findAll() {
         return this.requestsService.findAll();
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post()
     async create(
         @Body() dto: CreateRequestDto,
