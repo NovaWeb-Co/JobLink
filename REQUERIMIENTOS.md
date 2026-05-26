@@ -79,4 +79,41 @@ El cliente indicó que el avance va bastante bien y que la aplicación ya transm
 - REQ-06: **Optimización responsive / experiencia móvil**.
 - REQ-07: Mejorar confianza visual (imágenes por defecto y estados vacíos).
 - REQ-08: Formularios más guiados con textos de ayuda.
-   
+
+## Sesión 3 — 26/05/2026
+
+### Retroalimentación del cliente
+
+El cliente aprobó la propuesta de implementar el sistema de autenticación, destacando que mejora significativamente la confianza en la plataforma y permite personalizar la experiencia según el tipo de usuario.
+
+**Texto del cliente:**
+
+> Me parece una muy buena decisión.  
+> Desde el negocio, tener login y registro mejora muchísimo la confianza y también les permitirá personalizar la experiencia para clientes y trabajadores.  
+> Eso sí, para esta etapa yo lo mantendría simple y enfocado en facilidad de uso.
+
+### Nuevos Requerimientos - Sistema de Autenticación
+
+- REQ-09: **Sistema de autenticación**:
+   - Inicio de sesión.
+   - Registro de usuarios.
+   - Cierre de sesión.
+
+- REQ-10: **Roles de usuario**:
+   - Cliente.
+   - Trabajador independiente.
+
+- REQ-11: **Recuperación de contraseña**:
+   - Opción “Olvidé mi contraseña”.
+
+- REQ-12: **Persistencia de sesión**:
+   - Mantener al usuario autenticado mientras navega por la plataforma.
+
+- REQ-13: **Validaciones de formularios**:
+   - Correos electrónicos válidos.
+   - Contraseñas seguras.
+   - Mensajes claros de error.
+
+- REQ-14: **Acceso según tipo de usuario**:
+   - Clientes pueden publicar solicitudes de servicio.
+   - Trabajadores pueden ofrecer servicios y gestionar su perfil.
