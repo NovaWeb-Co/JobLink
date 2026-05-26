@@ -1,14 +1,19 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller('users')
 export class UsersController {
 
   constructor(private readonly usersService: UsersService) { }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   async findAll() {
     return this.usersService.findAll();
@@ -25,6 +30,8 @@ export class UsersController {
     return this.usersService.update(id, dto);
   }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   @HttpCode(204)
   async remove(@Param('id', ParseIntPipe) id: number) {

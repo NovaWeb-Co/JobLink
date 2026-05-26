@@ -4,6 +4,9 @@ import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller('services')
 export class ServicesController {
@@ -38,6 +41,8 @@ export class ServicesController {
         return this.servicesService.update(id, dto);
     }
 
+    @Roles(Role.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Delete(':id')
     @HttpCode(204)
     async remove(
