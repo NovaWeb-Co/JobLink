@@ -1,32 +1,32 @@
 import { useState } from "react";
-import { useServices, useUsers, useRatings, useRequests, useCreateRequest, useCreateRating } from "../api/queries";
+import { useServices, useRatings, useRequests, useCreateRequest, useCreateRating } from "../api/queries";
 import { useAuth } from "../context/AuthContext";
 
 const CATEGORY_EMOJI: Record<string, string> = {
-  "Plomería": "🔧","Electricidad": "⚡","Carpintería": "🪚","Pintura": "🎨",
-  "Limpieza": "🧹","Jardinería": "🌿","Tecnología": "💻","Transporte": "🚚",
+  "Plomería": "🔧", "Electricidad": "⚡", "Carpintería": "🪚", "Pintura": "🎨",
+  "Limpieza": "🧹", "Jardinería": "🌿", "Tecnología": "💻", "Transporte": "🚚",
 };
 
 type Props = { serviceId: number; onBack: () => void; onProviderClick: (id: number) => void; };
 
 export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }: Props) {
   const { data: services = [] } = useServices();
-  const { data: users = [] }    = useUsers();
-  const { data: ratings = [] }  = useRatings();
+  const { data: ratings = [] } = useRatings();
   const { data: requests = [] } = useRequests();
-  const createReq  = useCreateRequest();
+  const createReq = useCreateRequest();
   const createRate = useCreateRating();
   const { user, requireAuth } = useAuth();
 
   const service = services.find(s => s.id === serviceId);
-  const provider = service ? users.find(u => u.id === service.userId) : null;
+  // El proveedor viene incluido en el service (include: { user: true } del backend)
+  const provider = service?.user ?? null;
   const svcRatings = ratings.filter(r => r.serviceId === serviceId);
   const avgScore = svcRatings.length ? svcRatings.reduce((a, r) => a + r.score, 0) / svcRatings.length : 0;
 
-  const [reqDesc, setReqDesc]   = useState("");
-  const [reqDone, setReqDone]   = useState(false);
-  const [score, setScore]       = useState(5);
-  const [comment, setComment]   = useState("");
+  const [reqDesc, setReqDesc] = useState("");
+  const [reqDone, setReqDone] = useState(false);
+  const [score, setScore] = useState(5);
+  const [comment, setComment] = useState("");
   const [rateDone, setRateDone] = useState(false);
 
   if (!service) return (
@@ -46,21 +46,22 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
   async function handleRating() {
     requireAuth(async () => {
       await createRate.mutateAsync({ score, comment, userId: user!.id, serviceId });
-      setRateDone(true); setComment("");
+      setRateDone(true);
+      setComment("");
     });
   }
 
   return (
     <div className="layout-main" style={{ padding: "2rem 1.25rem" }}>
-      {/* Breadcrumb */}
       <button onClick={onBack} className="btn-ghost" style={{ marginBottom: "1rem", paddingLeft: 0 }}>
         ← Volver a servicios
       </button>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "1.5rem", alignItems: "start" }}>
-        {/* ─── LEFT ──────────────────────────────────────────────────────── */}
+        {/* ─── Columna izquierda ─────────────────────────────────────────── */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          {/* Header card */}
+
+          {/* Info del servicio */}
           <div className="card" style={{ padding: "1.75rem" }}>
             <div style={{ display: "flex", gap: "1.25rem", alignItems: "flex-start" }}>
               <div style={{ width: 80, height: 80, borderRadius: 16, background: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2.5rem", flexShrink: 0 }}>
@@ -87,43 +88,53 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
                 </div>
               </div>
             </div>
-            <p style={{ marginTop: "1.25rem", fontSize: "0.92rem", color: "#475569", lineHeight: 1.7, margin: "1.25rem 0 0" }}>{service.description}</p>
+            <p style={{ marginTop: "1.25rem", fontSize: "0.92rem", color: "#475569", lineHeight: 1.7 }}>{service.description}</p>
           </div>
 
-          {/* Provider card */}
+          {/* Proveedor */}
           {provider && (
             <div className="card" style={{ padding: "1.25rem" }}>
-              <h3 style={{ fontFamily: "Syne, sans-serif", fontSize: "1rem", margin: "0 0 1rem", color: "var(--slate)", textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.78rem" }}>Proveedor del servicio</h3>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => onProviderClick(provider.id)}>
+              <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--slate)", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 0.875rem" }}>Proveedor del servicio</p>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => onProviderClick(service.userId)}>
                 <div style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "var(--navy)", flexShrink: 0 }}>
                   {provider.name[0]}{provider.lastname[0]}
                 </div>
                 <div>
                   <p style={{ fontWeight: 700, margin: 0, color: "var(--navy)" }}>{provider.name} {provider.lastname}</p>
-                  <p style={{ fontSize: "0.8rem", color: "var(--slate)", margin: 0 }}>{provider.email}</p>
+                  <p style={{ fontSize: "0.8rem", color: "var(--slate)", margin: 0 }}>Ver perfil completo</p>
                 </div>
                 <span style={{ marginLeft: "auto", color: "var(--slate)", fontSize: "1.1rem" }}>→</span>
               </div>
             </div>
           )}
 
-          {/* Ratings */}
+          {/* Reseñas */}
           <div className="card" style={{ padding: "1.25rem" }}>
             <h3 style={{ fontFamily: "Syne, sans-serif", fontSize: "1rem", margin: "0 0 1rem", color: "var(--navy)" }}>
-              Reseñas {svcRatings.length > 0 && <span style={{ fontSize: "0.8rem", color: "var(--slate)", fontFamily: "DM Sans, sans-serif", fontWeight: 400 }}>({svcRatings.length})</span>}
+              Reseñas
+              {svcRatings.length > 0 && (
+                <span style={{ fontSize: "0.8rem", color: "var(--slate)", fontFamily: "DM Sans, sans-serif", fontWeight: 400, marginLeft: 6 }}>
+                  ({svcRatings.length})
+                </span>
+              )}
             </h3>
 
             {svcRatings.length === 0 ? (
               <p style={{ color: "var(--slate)", fontSize: "0.875rem" }}>Aún no hay reseñas para este servicio.</p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.25rem" }}>
                 {svcRatings.map(r => {
-                  const reviewer = users.find(u => u.id === r.userId);
+                  // El reviewer viene incluido en el rating (include: { user: true })
+                  const reviewer = r.user;
                   return (
                     <div key={r.id} style={{ borderBottom: "1px solid #F1F5F9", paddingBottom: "1rem" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                        <span style={{ fontWeight: 600, fontSize: "0.875rem" }}>{reviewer ? `${reviewer.name} ${reviewer.lastname}` : "Usuario"}</span>
-                        <span className="stars" style={{ fontSize: "0.9rem" }}>{"★".repeat(r.score)}{"☆".repeat(5 - r.score)}</span>
+                        <span style={{ fontWeight: 600, fontSize: "0.875rem" }}>
+                          {reviewer ? `${reviewer.name} ${reviewer.lastname}` : "Usuario"}
+                        </span>
+                        <span className="stars" style={{ fontSize: "0.9rem" }}>
+                          {"★".repeat(r.score)}{"☆".repeat(5 - r.score)}
+                        </span>
                       </div>
                       {r.comment && <p style={{ fontSize: "0.85rem", color: "#475569", margin: 0 }}>{r.comment}</p>}
                     </div>
@@ -132,17 +143,18 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
               </div>
             )}
 
-            {/* Add rating */}
-            <div style={{ marginTop: "1.25rem", paddingTop: "1.25rem", borderTop: "1px solid #F1F5F9" }}>
+            {/* Dejar reseña */}
+            <div style={{ paddingTop: "1.25rem", borderTop: "1px solid #F1F5F9" }}>
               <h4 style={{ fontSize: "0.875rem", fontWeight: 600, margin: "0 0 0.75rem" }}>Deja tu calificación</h4>
               {rateDone ? (
                 <div className="alert alert-success">✅ ¡Gracias por tu reseña!</div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                   <div style={{ display: "flex", gap: 4 }}>
-                    {[1,2,3,4,5].map(n => (
-                      <button key={n} onClick={() => requireAuth(() => setScore(n))}
-                        style={{ fontSize: "1.5rem", background: "none", border: "none", cursor: "pointer", transition: "transform 0.1s", color: n <= score ? "var(--gold)" : "#CBD5E1" }}
+                    {[1, 2, 3, 4, 5].map(n => (
+                      <button key={n}
+                        onClick={() => requireAuth(() => setScore(n))}
+                        style={{ fontSize: "1.5rem", background: "none", border: "none", cursor: "pointer", color: n <= score ? "var(--gold)" : "#CBD5E1", transition: "transform 0.1s" }}
                         onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.2)"; }}
                         onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}>
                         ★
@@ -159,7 +171,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
           </div>
         </div>
 
-        {/* ─── RIGHT — Booking card ──────────────────────────────────────── */}
+        {/* ─── Columna derecha — Booking card ───────────────────────────── */}
         <div style={{ position: "sticky", top: 80 }}>
           <div className="card" style={{ padding: "1.5rem" }}>
             <div style={{ marginBottom: "1.25rem" }}>
@@ -176,9 +188,16 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
               <>
                 <div style={{ marginBottom: "1rem" }}>
                   <label className="label">Describe tu necesidad</label>
-                  <textarea className="input" value={reqDesc} onChange={e => setReqDesc(e.target.value)}
-                    placeholder="Ej: Necesito reparar una tubería en el baño..."
-                    style={{ minHeight: 90, resize: "vertical" }} />
+                  <textarea
+                    className="input"
+                    value={reqDesc}
+                    onChange={e => setReqDesc(e.target.value)}
+                    placeholder="Ej: Necesito reparar una tubería en el baño. Urgencia: esta semana. Horario: mañanas."
+                    style={{ minHeight: 90, resize: "vertical" }}
+                  />
+                  <p style={{ fontSize: "0.72rem", color: "var(--slate)", marginTop: 4 }}>
+                    💡 Incluye detalles como urgencia y horario disponible
+                  </p>
                 </div>
                 <button
                   className="btn-primary"
@@ -186,7 +205,11 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
                   disabled={createReq.isPending || !service.availability}
                   onClick={handleRequest}
                 >
-                  {!service.availability ? "No disponible" : createReq.isPending ? "Enviando..." : "✅ Solicitar servicio"}
+                  {!service.availability
+                    ? "No disponible"
+                    : createReq.isPending
+                      ? "Enviando..."
+                      : "✅ Solicitar servicio"}
                 </button>
               </>
             )}

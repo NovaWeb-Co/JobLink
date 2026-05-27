@@ -4,7 +4,7 @@ type Page = "home" | "services" | "profile" | "admin";
 type Props = { page: Page; setPage: (p: Page) => void; };
 
 export default function Navbar({ page, setPage }: Props) {
-  const { user, logout, setShowLoginModal } = useAuth();
+  const { user, isAdmin, logout, setShowLoginModal } = useAuth();
 
   return (
     <nav className="navbar">
@@ -18,7 +18,7 @@ export default function Navbar({ page, setPage }: Props) {
         {/* Nav links */}
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           {[
-            { id: "home",     label: "Inicio" },
+            { id: "home", label: "Inicio" },
             { id: "services", label: "Servicios" },
           ].map(item => (
             <button
@@ -33,7 +33,9 @@ export default function Navbar({ page, setPage }: Props) {
               }}
             >{item.label}</button>
           ))}
-          {user && (
+
+          {/* Panel solo para ADMIN */}
+          {isAdmin && (
             <button
               onClick={() => setPage("admin")}
               style={{
@@ -42,7 +44,9 @@ export default function Navbar({ page, setPage }: Props) {
                 borderRadius: 8, color: page === "admin" ? "var(--gold)" : "#94A3B8",
                 fontFamily: "DM Sans, sans-serif", fontWeight: 500, fontSize: "0.875rem",
               }}
-            >Panel</button>
+            >
+              Admin
+            </button>
           )}
         </div>
 
@@ -50,11 +54,19 @@ export default function Navbar({ page, setPage }: Props) {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {user ? (
             <>
-              <button onClick={() => setPage("profile")} style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 10, padding: "6px 12px", cursor: "pointer" }}>
+              <button
+                onClick={() => setPage("profile")}
+                style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 10, padding: "6px 12px", cursor: "pointer" }}
+              >
                 <div style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.8rem", color: "var(--navy)" }}>
                   {user.name[0]}{user.lastname[0]}
                 </div>
-                <span style={{ color: "white", fontSize: "0.85rem", fontFamily: "DM Sans, sans-serif" }}>{user.name}</span>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                  <span style={{ color: "white", fontSize: "0.85rem", fontFamily: "DM Sans, sans-serif", lineHeight: 1.2 }}>{user.name}</span>
+                  {isAdmin && (
+                    <span style={{ fontSize: "0.65rem", color: "var(--gold)", fontWeight: 700, letterSpacing: "0.05em" }}>ADMIN</span>
+                  )}
+                </div>
               </button>
               <button onClick={logout} className="btn-ghost" style={{ color: "#94A3B8", fontSize: "0.8rem" }}>Salir</button>
             </>

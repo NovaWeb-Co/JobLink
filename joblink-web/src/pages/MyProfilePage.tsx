@@ -1,40 +1,42 @@
 import { useState } from "react";
-import { useServices, useUsers, useRequests, useMessages, useCreateService, useUpdateService, useDeleteService, useCreateMessage, useRatings } from "../api/queries";
+import { useServices, useRequests, useMessages, useCreateService, useUpdateService, useDeleteService, useCreateMessage, useRatings } from "../api/queries";
 import { useAuth } from "../context/AuthContext";
-import type { Service } from "../api/index";
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: "Pendiente", ACCEPTED: "Aceptado", COMPLETED: "Completado", CANCELED: "Cancelado"
 };
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: "badge-amber", ACCEPTED: "badge-blue", COMPLETED: "badge-green", CANCELED: "badge-red"
+};
+const CATS = ["Plomería", "Electricidad", "Carpintería", "Pintura", "Limpieza", "Jardinería", "Tecnología", "Transporte"];
 
 export default function MyProfilePage() {
   const { user } = useAuth();
-  const { data: services = [] }  = useServices();
-  const { data: users = [] }     = useUsers();
-  const { data: requests = [] }  = useRequests();
-  const { data: messages = [] }  = useMessages();
-  const { data: ratings = [] }   = useRatings();
+  const { data: services = [] } = useServices();
+  const { data: requests = [] } = useRequests();
+  const { data: messages = [] } = useMessages();
+  const { data: ratings = [] } = useRatings();
   const createSvc = useCreateService();
   const updateSvc = useUpdateService();
   const deleteSvc = useDeleteService();
   const createMsg = useCreateMessage();
 
-  const [tab, setTab] = useState<"services"|"requests"|"messages">("services");
+  const [tab, setTab] = useState<"services" | "requests" | "messages">("services");
 
-  // Service form
-  const [editingId, setEditingId]   = useState<number | null>(null);
-  const [title, setTitle]           = useState("");
-  const [description, setDesc]      = useState("");
-  const [category, setCategory]     = useState("Plomería");
-  const [price, setPrice]           = useState("");
-  const [location, setLocation]     = useState("");
-  const [availability, setAvail]    = useState(true);
-  const [showForm, setShowForm]     = useState(false);
+  // Formulario de servicio
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+  const [category, setCategory] = useState(CATS[0]);
+  const [price, setPrice] = useState("");
+  const [location, setLocation] = useState("");
+  const [avail, setAvail] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
-  // Message form
-  const [msgTo, setMsgTo]       = useState("");
+  // Formulario de mensaje
+  const [msgTo, setMsgTo] = useState("");
   const [msgContent, setMsgContent] = useState("");
-  const [msgDone, setMsgDone]   = useState(false);
+  const [msgDone, setMsgDone] = useState(false);
 
   if (!user) return null;
 
@@ -43,13 +45,13 @@ export default function MyProfilePage() {
   const myMessages = messages.filter(m => m.senderId === user.id || m.receiverId === user.id);
 
   function resetForm() {
-    setEditingId(null); setTitle(""); setDesc(""); setCategory("Plomería");
+    setEditingId(null); setTitle(""); setDesc(""); setCategory(CATS[0]);
     setPrice(""); setLocation(""); setAvail(true); setShowForm(false);
   }
 
   async function onSubmitService(e: React.FormEvent) {
     e.preventDefault();
-    const dto = { title, description, category, price: Number(price), location, availability, userId: user.id };
+    const dto = { title, description: desc, category, price: Number(price), location, availability: avail, userId: user.id };
     if (editingId !== null) await updateSvc.mutateAsync({ id: editingId, dto });
     else await createSvc.mutateAsync(dto);
     resetForm();
@@ -64,10 +66,10 @@ export default function MyProfilePage() {
 
   return (
     <div className="layout-main" style={{ padding: "2rem 1.25rem" }}>
-      {/* Profile header */}
+      {/* Header del perfil */}
       <div className="card" style={{ padding: "1.75rem", marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
-          <div style={{ width: 72, height: 72, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.6rem", color: "var(--navy)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", flexWrap: "wrap" }}>
+          <div style={{ width: 72, height: 72, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.6rem", color: "var(--navy)", flexShrink: 0 }}>
             {user.name[0]}{user.lastname[0]}
           </div>
           <div>
@@ -75,6 +77,9 @@ export default function MyProfilePage() {
               {user.name} {user.lastname}
             </h1>
             <p style={{ color: "var(--slate)", margin: 0, fontSize: "0.875rem" }}>{user.email}</p>
+            <span className={`badge ${user.role === "ADMIN" ? "badge-blue" : "badge-green"}`} style={{ marginTop: 6, display: "inline-block" }}>
+              {user.role === "ADMIN" ? "👑 Administrador" : "👤 Usuario"}
+            </span>
           </div>
           <div style={{ marginLeft: "auto", display: "flex", gap: "0.75rem" }}>
             <div style={{ textAlign: "center", background: "var(--slate-light)", borderRadius: 10, padding: "0.6rem 1rem" }}>
@@ -84,6 +89,10 @@ export default function MyProfilePage() {
             <div style={{ textAlign: "center", background: "var(--slate-light)", borderRadius: 10, padding: "0.6rem 1rem" }}>
               <p style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, margin: 0, fontSize: "1.25rem" }}>{myRequests.length}</p>
               <p style={{ fontSize: "0.7rem", color: "var(--slate)", margin: 0 }}>Solicitudes</p>
+            </div>
+            <div style={{ textAlign: "center", background: "var(--slate-light)", borderRadius: 10, padding: "0.6rem 1rem" }}>
+              <p style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, margin: 0, fontSize: "1.25rem" }}>{myMessages.length}</p>
+              <p style={{ fontSize: "0.7rem", color: "var(--slate)", margin: 0 }}>Mensajes</p>
             </div>
           </div>
         </div>
@@ -96,14 +105,15 @@ export default function MyProfilePage() {
         <button className={`tab-btn ${tab === "messages" ? "active" : ""}`} onClick={() => setTab("messages")}>💬 Mensajes</button>
       </div>
 
-      {/* ─── SERVICES TAB ──────────────────────────────────────────────── */}
+      {/* ─── TAB SERVICIOS ─────────────────────────────────────────────────── */}
       {tab === "services" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button className="btn-primary" onClick={() => { resetForm(); setShowForm(true); }}>+ Publicar servicio</button>
+            <button className="btn-primary" onClick={() => { resetForm(); setShowForm(true); }}>
+              + Publicar servicio
+            </button>
           </div>
 
-          {/* Form */}
           {showForm && (
             <div className="card" style={{ padding: "1.5rem" }}>
               <h3 style={{ fontFamily: "Syne, sans-serif", marginBottom: "1.25rem" }}>
@@ -113,17 +123,17 @@ export default function MyProfilePage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                   <div>
                     <label className="label">Título</label>
-                    <input className="input" value={title} onChange={e => setTitle(e.target.value)} required />
+                    <input className="input" value={title} onChange={e => setTitle(e.target.value)} placeholder="Ej: Plomería residencial" required />
                   </div>
                   <div>
                     <label className="label">Categoría</label>
                     <select className="input" value={category} onChange={e => setCategory(e.target.value)}>
-                      {["Plomería","Electricidad","Carpintería","Pintura","Limpieza","Jardinería","Tecnología","Transporte"].map(c => <option key={c}>{c}</option>)}
+                      {CATS.map(c => <option key={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="label">Precio (COP)</label>
-                    <input type="number" min="0" className="input" value={price} onChange={e => setPrice(e.target.value)} required />
+                    <input type="number" min="0" className="input" value={price} onChange={e => setPrice(e.target.value)} placeholder="Ej: 80000" required />
                   </div>
                   <div>
                     <label className="label">Ubicación</label>
@@ -131,11 +141,13 @@ export default function MyProfilePage() {
                   </div>
                   <div style={{ gridColumn: "span 2" }}>
                     <label className="label">Descripción</label>
-                    <textarea className="input" value={description} onChange={e => setDesc(e.target.value)} style={{ minHeight: 80, resize: "vertical" }} required />
+                    <textarea className="input" value={desc} onChange={e => setDesc(e.target.value)}
+                      placeholder="Describe tu servicio con detalle. Ej: Reparación de tuberías, filtraciones y mantenimiento preventivo."
+                      style={{ minHeight: 80, resize: "vertical" }} required />
                   </div>
                 </div>
                 <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: "0.875rem", fontWeight: 500 }}>
-                  <input type="checkbox" checked={availability} onChange={e => setAvail(e.target.checked)} style={{ accentColor: "var(--gold)", width: 16, height: 16 }} />
+                  <input type="checkbox" checked={avail} onChange={e => setAvail(e.target.checked)} style={{ accentColor: "var(--gold)", width: 16, height: 16 }} />
                   Disponible para contratación
                 </label>
                 <div style={{ display: "flex", gap: "0.75rem" }}>
@@ -148,16 +160,17 @@ export default function MyProfilePage() {
             </div>
           )}
 
-          {/* Services list */}
           {myServices.length === 0 ? (
-            <div className="empty"><div className="empty-icon">🔧</div><p>No has publicado servicios aún.</p></div>
+            <div className="empty">
+              <div className="empty-icon">🔧</div>
+              <p>No has publicado servicios aún.</p>
+              <button className="btn-primary" onClick={() => { resetForm(); setShowForm(true); }}>Publicar mi primer servicio</button>
+            </div>
           ) : (
             <div className="card" style={{ overflow: "hidden" }}>
               <table className="tbl">
                 <thead>
-                  <tr>
-                    <th>Servicio</th><th>Categoría</th><th>Precio</th><th>Estado</th><th>Acciones</th>
-                  </tr>
+                  <tr><th>Servicio</th><th>Categoría</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr>
                 </thead>
                 <tbody>
                   {myServices.map(s => (
@@ -169,7 +182,11 @@ export default function MyProfilePage() {
                       <td>
                         <div style={{ display: "flex", gap: 6 }}>
                           <button className="btn-ghost" style={{ fontSize: "0.78rem", padding: "4px 10px" }}
-                            onClick={() => { setEditingId(s.id); setTitle(s.title); setDesc(s.description); setCategory(s.category); setPrice(String(s.price)); setLocation(s.location ?? ""); setAvail(s.availability); setShowForm(true); }}>
+                            onClick={() => {
+                              setEditingId(s.id); setTitle(s.title); setDesc(s.description);
+                              setCategory(s.category); setPrice(String(s.price));
+                              setLocation(s.location ?? ""); setAvail(s.availability); setShowForm(true);
+                            }}>
                             ✏️ Editar
                           </button>
                           <button className="btn-danger"
@@ -187,55 +204,68 @@ export default function MyProfilePage() {
         </div>
       )}
 
-      {/* ─── REQUESTS TAB ──────────────────────────────────────────────── */}
+      {/* ─── TAB SOLICITUDES ───────────────────────────────────────────────── */}
       {tab === "requests" && (
-        <div>
-          {myRequests.length === 0 ? (
-            <div className="empty"><div className="empty-icon">📋</div><p>No tienes solicitudes aún.</p></div>
-          ) : (
-            <div className="card" style={{ overflow: "hidden" }}>
-              <table className="tbl">
-                <thead>
-                  <tr><th>ID</th><th>Descripción</th><th>Estado</th><th>Servicio ID</th><th>Fecha</th></tr>
-                </thead>
-                <tbody>
-                  {myRequests.map(r => (
+        myRequests.length === 0 ? (
+          <div className="empty">
+            <div className="empty-icon">📋</div>
+            <p>No tienes solicitudes aún.</p>
+            <p style={{ fontSize: "0.85rem" }}>Ve al catálogo y solicita un servicio.</p>
+          </div>
+        ) : (
+          <div className="card" style={{ overflow: "hidden" }}>
+            <table className="tbl">
+              <thead>
+                <tr><th>Servicio</th><th>Descripción</th><th>Estado</th><th>Fecha</th></tr>
+              </thead>
+              <tbody>
+                {myRequests.map(r => {
+                  // El servicio viene incluido en el request (include: { service: true })
+                  const svc = r.service;
+                  return (
                     <tr key={r.id}>
-                      <td style={{ color: "var(--slate)", fontSize: "0.8rem" }}>#{r.id}</td>
-                      <td>{r.description ?? "-"}</td>
-                      <td><span className={`badge status-${r.status}`}>{STATUS_LABELS[r.status]}</span></td>
-                      <td>{r.serviceId}</td>
-                      <td style={{ fontSize: "0.78rem", color: "var(--slate)" }}>{new Date(r.createdAt).toLocaleDateString("es-CO")}</td>
+                      <td style={{ fontWeight: 500 }}>{svc ? svc.title : `Servicio #${r.serviceId}`}</td>
+                      <td style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {r.description ?? "-"}
+                      </td>
+                      <td>
+                        <span className={`badge ${STATUS_COLORS[r.status]}`}>
+                          {STATUS_LABELS[r.status]}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: "0.78rem", color: "var(--slate)" }}>
+                        {new Date(r.createdAt).toLocaleDateString("es-CO")}
+                      </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
       )}
 
-      {/* ─── MESSAGES TAB ──────────────────────────────────────────────── */}
+      {/* ─── TAB MENSAJES ──────────────────────────────────────────────────── */}
       {tab === "messages" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          {/* Send message */}
           <div className="card" style={{ padding: "1.25rem" }}>
             <h3 style={{ fontFamily: "Syne, sans-serif", fontSize: "1rem", marginBottom: "1rem" }}>Enviar mensaje</h3>
             {msgDone && <div className="alert alert-success">✅ Mensaje enviado.</div>}
-            <form onSubmit={onSendMessage} style={{ display: "grid", gridTemplateColumns: "140px 1fr auto", gap: "0.75rem", alignItems: "flex-end" }}>
+            <form onSubmit={onSendMessage} style={{ display: "grid", gridTemplateColumns: "160px 1fr auto", gap: "0.75rem", alignItems: "flex-end" }}>
               <div>
                 <label className="label">ID del destinatario</label>
-                <input type="number" className="input" value={msgTo} onChange={e => setMsgTo(e.target.value)} placeholder="ID usuario" required />
+                <input type="number" className="input" value={msgTo} onChange={e => setMsgTo(e.target.value)} placeholder="Ej: 2" required />
               </div>
               <div>
                 <label className="label">Mensaje</label>
                 <input className="input" value={msgContent} onChange={e => setMsgContent(e.target.value)} placeholder="Escribe tu mensaje..." required />
               </div>
-              <button type="submit" className="btn-primary" disabled={createMsg.isPending}>Enviar</button>
+              <button type="submit" className="btn-primary" disabled={createMsg.isPending}>
+                {createMsg.isPending ? "..." : "Enviar"}
+              </button>
             </form>
           </div>
 
-          {/* Message list */}
           {myMessages.length === 0 ? (
             <div className="empty"><div className="empty-icon">💬</div><p>No tienes mensajes aún.</p></div>
           ) : (
@@ -246,18 +276,21 @@ export default function MyProfilePage() {
                 </thead>
                 <tbody>
                   {myMessages.map(m => {
-                    const other = m.senderId === user.id
-                      ? users.find(u => u.id === m.receiverId)
-                      : users.find(u => u.id === m.senderId);
+                    // sender y receiver vienen incluidos en el mensaje
+                    const other = m.senderId === user.id ? m.receiver : m.sender;
                     return (
                       <tr key={m.id}>
                         <td>
                           <span className={`badge ${m.senderId === user.id ? "badge-blue" : "badge-teal"}`}>
                             {m.senderId === user.id ? "↑ Enviado" : "↓ Recibido"}
                           </span>
-                          {other && <span style={{ marginLeft: 8, fontSize: "0.78rem", color: "var(--slate)" }}>{other.name}</span>}
+                          {other && (
+                            <span style={{ marginLeft: 8, fontSize: "0.78rem", color: "var(--slate)" }}>
+                              {other.name} {other.lastname}
+                            </span>
+                          )}
                         </td>
-                        <td style={{ maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.content}</td>
+                        <td style={{ maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.content}</td>
                         <td>{m.isRead ? <span className="badge badge-green">Leído</span> : <span className="badge badge-gray">No leído</span>}</td>
                         <td style={{ fontSize: "0.78rem", color: "var(--slate)" }}>{new Date(m.createdAt).toLocaleDateString("es-CO")}</td>
                       </tr>

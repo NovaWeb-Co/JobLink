@@ -15,26 +15,25 @@ export default function AuthModal() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-
     if (!email.trim() || password.length < 6) {
       setError("Email obligatorio y contraseña mínimo 6 caracteres.");
       return;
     }
-
     setLoading(true);
     try {
       if (mode === "register") {
         if (!name.trim() || !lastname.trim()) {
           setError("Nombre y apellido son obligatorios.");
+          setLoading(false);
           return;
         }
+        // POST /auth/register
         await register({ name, lastname, email, password, phone: phone || undefined });
       } else {
-        // identifier acepta email o teléfono
+        // POST /auth/login — identifier acepta email o teléfono
         await login(email, password);
       }
     } catch (err) {
-      // Parsear mensaje de error del backend
       const raw = String(err).replace("Error: ", "");
       try {
         const parsed = JSON.parse(raw);
@@ -50,13 +49,10 @@ export default function AuthModal() {
 
   return (
     <div
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: "1rem" }}
+      className="modal-overlay"
       onClick={() => setShowLoginModal(false)}
     >
-      <div
-        style={{ background: "white", borderRadius: 20, padding: "2rem", width: "100%", maxWidth: 440, boxShadow: "0 24px 80px rgba(0,0,0,0.2)" }}
-        onClick={e => e.stopPropagation()}
-      >
+      <div className="modal-box" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
           <div>
@@ -68,28 +64,23 @@ export default function AuthModal() {
             </p>
           </div>
           <button onClick={() => setShowLoginModal(false)}
-            style={{ background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: "var(--slate)", lineHeight: 1, padding: 0 }}>×</button>
+            style={{ background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: "var(--slate)", lineHeight: 1, padding: 0 }}>
+            ×
+          </button>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: "flex", borderBottom: "2px solid #E2E8F0", marginBottom: "1.5rem" }}>
-          {(["login", "register"] as const).map(m => (
-            <button key={m} onClick={() => { setMode(m); setError(null); }}
-              style={{
-                flex: 1, padding: "0.75rem", border: "none", background: "none", cursor: "pointer",
-                fontFamily: "DM Sans, sans-serif", fontWeight: mode === m ? 600 : 400, fontSize: "0.875rem",
-                color: mode === m ? "var(--navy)" : "var(--slate)",
-                borderBottom: `2px solid ${mode === m ? "var(--gold)" : "transparent"}`, marginBottom: -2,
-              }}>
-              {m === "login" ? "Ingresar" : "Registrarse"}
-            </button>
-          ))}
+        <div className="tab-bar" style={{ marginBottom: "1.5rem" }}>
+          <button className={`tab-btn ${mode === "login" ? "active" : ""}`} onClick={() => { setMode("login"); setError(null); }}>
+            Ingresar
+          </button>
+          <button className={`tab-btn ${mode === "register" ? "active" : ""}`} onClick={() => { setMode("register"); setError(null); }}>
+            Registrarse
+          </button>
         </div>
 
         {error && (
-          <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 10, padding: "0.75rem 1rem", fontSize: "0.875rem", color: "#991B1B", marginBottom: "1rem" }}>
-            ⚠️ {error}
-          </div>
+          <div className="alert alert-error">⚠️ {error}</div>
         )}
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
@@ -126,7 +117,14 @@ export default function AuthModal() {
 
           <div>
             <label className="label">Contraseña</label>
-            <input type="password" className="input" value={password} onChange={e => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" required />
+            <input
+              type="password"
+              className="input"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+              required
+            />
           </div>
 
           <button

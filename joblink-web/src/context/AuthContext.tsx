@@ -2,9 +2,6 @@ import { createContext, useContext, useState, ReactNode } from "react";
 import { authApi } from "../api/index";
 import type { Role } from "../api/index";
 
-// Re-exportamos authApi para que AuthModal lo use desde aquí
-export { authApi };
-
 type AuthUser = {
   id: number;
   name: string;
@@ -51,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (pendingAction) { pendingAction(); setPendingAction(null); }
   }
 
+  // POST /auth/login — identifier acepta email o teléfono
   async function login(identifier: string, password: string) {
     const res = await authApi.login({ identifier, password });
     saveSession(res.access_token, {
@@ -63,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }
 
+  // POST /auth/register
   async function register(dto: {
     name: string; lastname: string; email: string; password: string;
     phone?: string; address?: string;
