@@ -8,6 +8,7 @@ export default function AuthModal() {
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,19 +28,20 @@ export default function AuthModal() {
           setError("Nombre y apellido son obligatorios.");
           return;
         }
-        // POST /auth/register
-        await register({ name, lastname, email, password });
+        await register({ name, lastname, email, password, phone: phone || undefined });
       } else {
-        // POST /auth/login — identifier acepta email o teléfono
+        // identifier acepta email o teléfono
         await login(email, password);
       }
     } catch (err) {
-      // El backend devuelve mensajes en español: "Contraseña incorrecta", etc.
+      // Parsear mensaje de error del backend
+      const raw = String(err).replace("Error: ", "");
       try {
-        const parsed = JSON.parse(String(err).replace("Error: ", ""));
-        setError(parsed.message || String(err));
+        const parsed = JSON.parse(raw);
+        const msg = parsed.message;
+        setError(Array.isArray(msg) ? msg.join(", ") : msg || raw);
       } catch {
-        setError(String(err).replace("Error: ", ""));
+        setError(raw);
       }
     } finally {
       setLoading(false);
@@ -65,10 +67,8 @@ export default function AuthModal() {
               {mode === "login" ? "Ingresa con tu email o teléfono" : "Únete a JobLink hoy"}
             </p>
           </div>
-          <button
-            onClick={() => setShowLoginModal(false)}
-            style={{ background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: "var(--slate)", lineHeight: 1, padding: 0 }}
-          >×</button>
+          <button onClick={() => setShowLoginModal(false)}
+            style={{ background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: "var(--slate)", lineHeight: 1, padding: 0 }}>×</button>
         </div>
 
         {/* Tabs */}
@@ -79,7 +79,7 @@ export default function AuthModal() {
                 flex: 1, padding: "0.75rem", border: "none", background: "none", cursor: "pointer",
                 fontFamily: "DM Sans, sans-serif", fontWeight: mode === m ? 600 : 400, fontSize: "0.875rem",
                 color: mode === m ? "var(--navy)" : "var(--slate)",
-                borderBottom: `2px solid ${mode === m ? "var(--gold)" : "transparent"}`, marginBottom: -2
+                borderBottom: `2px solid ${mode === m ? "var(--gold)" : "transparent"}`, marginBottom: -2,
               }}>
               {m === "login" ? "Ingresar" : "Registrarse"}
             </button>
@@ -92,24 +92,28 @@ export default function AuthModal() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
           {mode === "register" && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "var(--slate)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.04em" }}>Nombre</label>
-                <input className="input" value={name} onChange={e => setName(e.target.value)} placeholder="Ana" required />
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                <div>
+                  <label className="label">Nombre</label>
+                  <input className="input" value={name} onChange={e => setName(e.target.value)} placeholder="Ana" required />
+                </div>
+                <div>
+                  <label className="label">Apellido</label>
+                  <input className="input" value={lastname} onChange={e => setLastname(e.target.value)} placeholder="García" required />
+                </div>
               </div>
               <div>
-                <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "var(--slate)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.04em" }}>Apellido</label>
-                <input className="input" value={lastname} onChange={e => setLastname(e.target.value)} placeholder="García" required />
+                <label className="label">Teléfono (opcional)</label>
+                <input className="input" value={phone} onChange={e => setPhone(e.target.value)} placeholder="3001234567" />
               </div>
-            </div>
+            </>
           )}
 
           <div>
-            <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "var(--slate)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.04em" }}>
-              {mode === "login" ? "Email o teléfono" : "Email"}
-            </label>
+            <label className="label">{mode === "login" ? "Email o teléfono" : "Email"}</label>
             <input
               type={mode === "login" ? "text" : "email"}
               className="input"
@@ -121,7 +125,7 @@ export default function AuthModal() {
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "var(--slate)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.04em" }}>Contraseña</label>
+            <label className="label">Contraseña</label>
             <input type="password" className="input" value={password} onChange={e => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" required />
           </div>
 

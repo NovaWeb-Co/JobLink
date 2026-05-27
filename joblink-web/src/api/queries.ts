@@ -1,15 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { servicesApi, usersApi, requestsApi, ratingsApi, messagesApi } from "./index";
-import type { Service, User, Request, Rating, Message, RequestStatus } from "./index";
+import {
+  usersApi, servicesApi, requestsApi, ratingsApi, messagesApi,
+  type Service, type User, type Request, type Rating, type Message, type RequestStatus,
+} from "./index";
 
-// ─── Services ─────────────────────────────────────────────────────────────────
+// ─── Services ────────────────────────────────────────────────────────────────
 export function useServices() {
   return useQuery({ queryKey: ["services"], queryFn: servicesApi.list });
 }
 export function useCreateService() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (dto: Omit<Service, "id"|"createdAt">) => servicesApi.create(dto),
+    mutationFn: (dto: Parameters<typeof servicesApi.create>[0]) => servicesApi.create(dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["services"] }),
   });
 }
@@ -28,16 +30,10 @@ export function useDeleteService() {
   });
 }
 
-// ─── Users ────────────────────────────────────────────────────────────────────
+// ─── Users ───────────────────────────────────────────────────────────────────
 export function useUsers() {
+  // Solo funciona si el usuario tiene rol ADMIN
   return useQuery({ queryKey: ["users"], queryFn: usersApi.list });
-}
-export function useCreateUser() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (dto: Omit<User, "id"|"isActive"|"createdAt">) => usersApi.create(dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
-  });
 }
 export function useUpdateUser() {
   const qc = useQueryClient();
@@ -54,7 +50,7 @@ export function useDeleteUser() {
   });
 }
 
-// ─── Requests ─────────────────────────────────────────────────────────────────
+// ─── Requests ────────────────────────────────────────────────────────────────
 export function useRequests() {
   return useQuery({ queryKey: ["requests"], queryFn: requestsApi.list });
 }
@@ -81,7 +77,7 @@ export function useDeleteRequest() {
   });
 }
 
-// ─── Ratings ──────────────────────────────────────────────────────────────────
+// ─── Ratings ─────────────────────────────────────────────────────────────────
 export function useRatings() {
   return useQuery({ queryKey: ["ratings"], queryFn: ratingsApi.list });
 }

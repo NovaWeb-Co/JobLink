@@ -1,18 +1,27 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { authApi, type RegisterDto } from "../api/auth";
+import { authApi } from "../api/index";
+import type { Role } from "../api/index";
+
+// Re-exportamos authApi para que AuthModal lo use desde aquí
+export { authApi };
 
 type AuthUser = {
   id: number;
   name: string;
   lastname: string;
   email: string;
+  role: Role;
   token: string;
 } | null;
 
 type AuthContextType = {
   user: AuthUser;
+  isAdmin: boolean;
   login: (identifier: string, password: string) => Promise<void>;
-  register: (dto: RegisterDto) => Promise<void>;
+  register: (dto: {
+    name: string; lastname: string; email: string; password: string;
+    phone?: string; address?: string;
+  }) => Promise<void>;
   logout: () => void;
   requireAuth: (action: () => void) => void;
   showLoginModal: boolean;
@@ -31,7 +40,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  function saveUser(token: string, userData: AuthUser) {
+  const isAdmin = user?.role === "ADMIN";
+
+  function saveSession(token: string, userData: AuthUser) {
     if (!userData) return;
     localStorage.setItem("jl_token", token);
     localStorage.setItem("jl_user", JSON.stringify(userData));
@@ -40,30 +51,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (pendingAction) { pendingAction(); setPendingAction(null); }
   }
 
-  // Login real: POST /auth/login con { identifier, password }
   async function login(identifier: string, password: string) {
     const res = await authApi.login({ identifier, password });
-    const authUser: AuthUser = {
+    saveSession(res.access_token, {
       id: res.user.id,
       name: res.user.name,
       lastname: res.user.lastname,
       email: res.user.email,
+      role: res.user.role,
       token: res.access_token,
-    };
-    saveUser(res.access_token, authUser);
+    });
   }
 
-  // Registro real: POST /auth/register
-  async function register(dto: RegisterDto) {
+  async function register(dto: {
+    name: string; lastname: string; email: string; password: string;
+    phone?: string; address?: string;
+  }) {
     const res = await authApi.register(dto);
-    const authUser: AuthUser = {
+    saveSession(res.access_token, {
       id: res.user.id,
       name: res.user.name,
       lastname: res.user.lastname,
       email: res.user.email,
+      role: res.user.role,
       token: res.access_token,
-    };
-    saveUser(res.access_token, authUser);
+    });
   }
 
   function logout() {
@@ -80,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      user, login, register, logout,
+      user, isAdmin, login, register, logout,
       requireAuth, showLoginModal, setShowLoginModal,
     }}>
       {children}
