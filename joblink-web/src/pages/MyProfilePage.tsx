@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   useServices, useRequests, useMessages,
   useCreateService, useUpdateService, useDeleteService,
-  useCreateMessage, useRatings, useUpdateUser,
+  useCreateMessage, useRatings, useUpdateUser, useDeleteUser,
 } from "../api/queries";
 import { useAuth } from "../context/AuthContext";
 
@@ -34,6 +34,8 @@ export default function MyProfilePage() {
   const deleteSvc = useDeleteService();
   const createMsg = useCreateMessage();
   const updateUser = useUpdateUser();
+  const deleteUser = useDeleteUser();
+  const { logout } = useAuth();
 
   const [tab, setTab] = useState<"services" | "requests" | "messages" | "profile">("profile");
 
@@ -218,11 +220,39 @@ export default function MyProfilePage() {
                   <input className="input" value={address} onChange={e => setAddress(e.target.value)} placeholder="Bogotá, Kennedy" />
                 </div>
               </div>
-              <div style={{ display: "flex", gap: "0.75rem" }}>
-                <button type="submit" className="btn-primary" disabled={savingProfile}>
-                  {savingProfile ? "Guardando..." : "Guardar cambios"}
-                </button>
-                <button type="button" className="btn-secondary" onClick={() => setEditProfile(false)}>Cancelar</button>
+              <div style={{ display: "flex", gap: "0.75rem", justifyContent: "space-between", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: "0.75rem" }}>
+                  <button type="submit" className="btn-primary" disabled={savingProfile}>
+                    {savingProfile ? "Guardando..." : "Guardar cambios"}
+                  </button>
+                  <button type="button" className="btn-secondary" onClick={() => setEditProfile(false)}>Cancelar</button>
+                </div>
+                {/* Eliminar cuenta propia — solo para usuarios normales */}
+                {user.role !== "ADMIN" && (
+                  <button
+                    type="button"
+                    className="btn-danger"
+                    style={{ marginLeft: "auto" }}
+                    disabled={deleteUser.isPending}
+                    onClick={async () => {
+                      if (!confirm(
+                        "⚠️ ¿Estás seguro de eliminar tu cuenta?\n\nEsta acción eliminará también todos tus servicios y no se puede deshacer."
+                      )) return;
+                      try {
+                        await deleteUser.mutateAsync(user.id);
+                      } catch {
+                        // El usuario fue eliminado exitosamente aunque el
+                        // backend devuelva 401 al intentar invalidar el cache
+                        // (porque el token ya no es válido). En ambos casos
+                        // cerramos sesión.
+                      } finally {
+                        logout();
+                      }
+                    }}
+                  >
+                    {deleteUser.isPending ? "Eliminando..." : "🗑️ Eliminar mi cuenta"}
+                  </button>
+                )}
               </div>
             </form>
           )}
