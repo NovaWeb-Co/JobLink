@@ -99,21 +99,14 @@ El cliente aprobó la propuesta de implementar el sistema de autenticación, des
    - Registro de usuarios.
    - Cierre de sesión.
 
-- REQ-10: **Roles de usuario**:
-   - Cliente.
-   - Trabajador independiente.
-
-- REQ-11: **Recuperación de contraseña**:
+- REQ-10: **Recuperación de contraseña**:
    - Opción “Olvidé mi contraseña”.
 
-- REQ-12: **Persistencia de sesión**:
+- REQ-11: **Persistencia de sesión**:
    - Mantener al usuario autenticado mientras navega por la plataforma.
 
-- REQ-13: **Validaciones de formularios**:
+- REQ-12: **Validaciones de formularios**:
    - Correos electrónicos válidos.
    - Contraseñas seguras.
    - Mensajes claros de error.
-
-- REQ-14: **Acceso según tipo de usuario**:
-   - Clientes pueden publicar solicitudes de servicio.
-   - Trabajadores pueden ofrecer servicios y gestionar su perfil.
+  
