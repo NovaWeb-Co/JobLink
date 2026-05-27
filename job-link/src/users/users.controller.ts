@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Request, ForbiddenException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, HttpCode, Param, ParseIntPipe, Patch, Request, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UseGuards } from '@nestjs/common';
@@ -6,7 +6,9 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-
+import { UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 @Controller('users')
 export class UsersController {
 
@@ -42,5 +44,60 @@ export class UsersController {
       throw new ForbiddenException('No tienes permiso para eliminar esta cuenta');
     }
     await this.usersService.remove(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+
+  @Post('upload-photo')
+
+  @UseInterceptors(
+    FileInterceptor('file', {
+
+      storage: diskStorage({
+
+        destination: './uploads',
+
+        filename: (
+          req,
+          file,
+          callback,
+        ) => {
+
+          const fileName =
+            `${Date.now()}-${file.originalname}`;
+
+          callback(
+            null,
+            fileName,
+          );
+        },
+      }),
+    }),
+  )
+
+  async uploadPhoto(
+
+    @UploadedFile()
+    file: Express.Multer.File,
+
+    @Request() req,
+
+  ) {
+
+    const user =
+      await this.usersService.uploadPhoto(
+        req.user.id,
+        file.filename,
+      );
+
+    return {
+      message:
+        'Foto subida correctamente',
+
+      imageUrl:
+        `/uploads/${file.filename}`,
+
+      user,
+    };
   }
 }

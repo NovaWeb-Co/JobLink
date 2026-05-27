@@ -55,4 +55,21 @@ export class UsersService {
             where: { id },
         });
     }
+
+    async uploadPhoto(
+        userId: number,
+        filename: string,
+    ) {
+
+        return this.prisma.user.update({
+            where: {
+                id: userId,
+            },
+
+            data: {
+                profilePhoto:
+                    `/uploads/${filename}`,
+            },
+        });
+    }
 }
