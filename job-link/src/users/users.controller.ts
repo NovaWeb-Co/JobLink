@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Request, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UseGuards } from '@nestjs/common';
@@ -30,11 +30,17 @@ export class UsersController {
     return this.usersService.update(id, dto);
   }
 
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @HttpCode(204)
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: any,
+  ) {
+    // Permite si es ADMIN o si el usuario está borrando su propia cuenta
+    if (req.user.role !== Role.ADMIN && req.user.id !== id) {
+      throw new ForbiddenException('No tienes permiso para eliminar esta cuenta');
+    }
     await this.usersService.remove(id);
   }
 }
