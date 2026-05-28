@@ -7,7 +7,9 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-
+import { UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 @Controller('services')
 export class ServicesController {
 
@@ -60,5 +62,31 @@ export class ServicesController {
             userId,
             serviceId,
         );
+    }
+
+    // Agregar este método al final de la clase ServicesController:
+    @UseGuards(JwtAuthGuard)
+    @Post(':id/upload-image')
+    @UseInterceptors(
+        FileInterceptor('file', {
+            storage: diskStorage({
+                destination: './uploads',
+                filename: (req, file, callback) => {
+                    const fileName = `${Date.now()}-${file.originalname}`;
+                    callback(null, fileName);
+                },
+            }),
+        }),
+    )
+    async uploadImage(
+        @Param('id', ParseIntPipe) id: number,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        const service = await this.servicesService.uploadImage(id, file.filename);
+        return {
+            message: 'Imagen subida correctamente',
+            imageUrl: `/uploads/${file.filename}`,
+            service,
+        };
     }
 }

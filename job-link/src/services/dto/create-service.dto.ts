@@ -20,4 +20,7 @@ export class CreateServiceDto {
     @IsOptional() availability?: boolean;
 
     @IsNumber() userId: number;
+
+    @IsString()
+    @IsOptional() imageUrl?: string;
 }

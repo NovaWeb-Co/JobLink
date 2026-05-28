@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
+import { resolve } from 'path';
 
 async function bootstrap() {
 
@@ -24,7 +24,8 @@ async function bootstrap() {
   );
 
   app.useStaticAssets(
-    join(__dirname, '..', 'uploads'),
+    resolve(process.cwd(), 'uploads'),
+    { prefix: '/uploads'},
   );
 
   await app.listen(

@@ -17,6 +17,7 @@ export class ServicesService {
                 price: dto.price,
                 location: dto.location,
                 availability: dto.availability,
+                imageUrl: dto.imageUrl,
                 userId: dto.userId,
             },
             include: {
@@ -127,5 +128,14 @@ export class ServicesService {
         return {
             message: `Servicio ${serviceId} eliminado correctamente`,
         };
+    }
+
+    async uploadImage(serviceId: number, filename: string) {
+        return this.prisma.service.update({
+            where: { id: serviceId },
+            data: {
+                imageUrl: `/uploads/${filename}`,
+            },
+        });
     }
 }
