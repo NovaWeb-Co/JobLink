@@ -3,10 +3,12 @@ import {
   useServices, useRequests, useMessages,
   useCreateService, useUpdateService, useDeleteService,
   useCreateMessage, useRatings, useUpdateUser, useDeleteUser,
+  useUpdateRequest,
 } from "../api/queries";
 import { useAuth } from "../context/AuthContext";
 import ImageUploader from "../components/ui/ImageUploader";
 import { useProfilePhotoUpload, useServiceImageUpload } from "../api/useImageUpload";
+import { toFullUrl } from "../api/index";
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: "Pendiente", ACCEPTED: "Aceptado", COMPLETED: "Completado", CANCELED: "Cancelado"
@@ -37,12 +39,13 @@ export default function MyProfilePage() {
   const createMsg = useCreateMessage();
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
+  const updateReq = useUpdateRequest();
 
   // Hooks de subida de imágenes
   const profileUpload = useProfilePhotoUpload(updateProfile);
   const serviceUpload = useServiceImageUpload();
 
-  const [tab, setTab] = useState<"services" | "requests" | "messages">("services");
+  const [tab, setTab] = useState<"services" | "requests" | "received" | "messages">("services");
 
   // ── Perfil ──────────────────────────────────────────────────────────────
   const [editProfile, setEditProfile] = useState(false);
@@ -76,6 +79,12 @@ export default function MyProfilePage() {
   const myRequests = requests.filter(r => r.userId === user.id);
   const myMessages = messages.filter(m => m.senderId === user.id || m.receiverId === user.id);
   const myRatings = ratings.filter(r => myServices.some(s => s.id === r.serviceId));
+
+  // Solicitudes RECIBIDAS como proveedor (clientes que solicitan mis servicios)
+  const receivedRequests = requests.filter(r =>
+    myServices.some(s => s.id === r.serviceId)
+  );
+  const pendingCount = receivedRequests.filter(r => r.status === "PENDING").length;
   const avgScore = myRatings.length ? myRatings.reduce((a, r) => a + r.score, 0) / myRatings.length : null;
 
   function resetForm() {
@@ -263,7 +272,22 @@ export default function MyProfilePage() {
       {/* ── TABS ──────────────────────────────────────────────────────────── */}
       <div className="tab-bar" style={{ marginBottom: "1.5rem" }}>
         <button className={`tab-btn ${tab === "services" ? "active" : ""}`} onClick={() => setTab("services")}>🔧 Mis servicios</button>
-        <button className={`tab-btn ${tab === "requests" ? "active" : ""}`} onClick={() => setTab("requests")}>📋 Solicitudes</button>
+        <button className={`tab-btn ${tab === "requests" ? "active" : ""}`} onClick={() => setTab("requests")}>📤 Mis solicitudes</button>
+        <button className={`tab-btn ${tab === "received" ? "active" : ""}`} onClick={() => setTab("received")}
+          style={{ position: "relative" }}>
+          📥 Solicitudes recibidas
+          {pendingCount > 0 && (
+            <span style={{
+              position: "absolute", top: 6, right: 6,
+              width: 16, height: 16, borderRadius: "50%",
+              background: "var(--danger)", color: "white",
+              fontSize: "0.6rem", fontWeight: 700,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              {pendingCount}
+            </span>
+          )}
+        </button>
         <button className={`tab-btn ${tab === "messages" ? "active" : ""}`} onClick={() => setTab("messages")}>💬 Mensajes</button>
       </div>
 
@@ -375,7 +399,7 @@ export default function MyProfilePage() {
             <div className="services-grid">
               {myServices.map(s => {
                 // imageUrl viene como campo propio del backend
-                const imgUrl = (s as any).imageUrl ?? null;
+                const imgUrl = toFullUrl(s.imageUrl);
                 const sRatings = ratings.filter(r => r.serviceId === s.id);
                 const avg = sRatings.length ? sRatings.reduce((a, r) => a + r.score, 0) / sRatings.length : null;
                 return (
@@ -444,12 +468,12 @@ export default function MyProfilePage() {
         </div>
       )}
 
-      {/* ── TAB SOLICITUDES ───────────────────────────────────────────────── */}
+      {/* ── TAB SOLICITUDES ENVIADAS ──────────────────────────────────────── */}
       {tab === "requests" && (
         myRequests.length === 0 ? (
           <div className="empty">
-            <div className="empty-icon">📋</div>
-            <p>No tienes solicitudes aún.</p>
+            <div className="empty-icon">📤</div>
+            <p>No has enviado solicitudes aún.</p>
             <p style={{ fontSize: "0.85rem" }}>Ve al catálogo, encuentra un servicio y solicítalo.</p>
           </div>
         ) : (
@@ -469,6 +493,103 @@ export default function MyProfilePage() {
                     </td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      )}
+
+      {/* ── TAB SOLICITUDES RECIBIDAS ─────────────────────────────────────── */}
+      {tab === "received" && (
+        receivedRequests.length === 0 ? (
+          <div className="empty">
+            <div className="empty-icon">📥</div>
+            <p>No has recibido solicitudes aún.</p>
+            <p style={{ fontSize: "0.85rem" }}>Cuando un cliente solicite uno de tus servicios, aparecerá aquí.</p>
+          </div>
+        ) : (
+          <div className="card" style={{ overflow: "hidden" }}>
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Servicio</th>
+                  <th>Descripción</th>
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {receivedRequests.map(r => {
+                  const client = r.user;
+                  const svc = myServices.find(s => s.id === r.serviceId);
+                  return (
+                    <tr key={r.id}>
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--slate-light)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 700, color: "var(--slate)", flexShrink: 0 }}>
+                            {client ? `${client.name[0]}${client.lastname[0]}` : "?"}
+                          </div>
+                          <span style={{ fontSize: "0.85rem", fontWeight: 500 }}>
+                            {client ? `${client.name} ${client.lastname}` : `#${r.userId}`}
+                          </span>
+                        </div>
+                      </td>
+                      <td style={{ fontSize: "0.85rem", fontWeight: 500 }}>
+                        {svc ? svc.title : `#${r.serviceId}`}
+                      </td>
+                      <td style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--slate)", fontSize: "0.82rem" }}>
+                        {r.description ?? "-"}
+                      </td>
+                      <td>
+                        <span className={`badge ${STATUS_COLORS[r.status]}`}>
+                          {STATUS_LABELS[r.status]}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: "0.78rem", color: "var(--slate)" }}>
+                        {new Date(r.createdAt).toLocaleDateString("es-CO")}
+                      </td>
+                      <td>
+                        {r.status === "PENDING" && (
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button
+                              className="btn-ghost"
+                              style={{ fontSize: "0.75rem", padding: "4px 10px", color: "var(--success)", border: "1px solid var(--success)" }}
+                              disabled={updateReq.isPending}
+                              onClick={() => updateReq.mutate({ id: r.id, dto: { status: "ACCEPTED" } })}
+                            >
+                              ✅ Aceptar
+                            </button>
+                            <button
+                              className="btn-danger"
+                              style={{ fontSize: "0.75rem" }}
+                              disabled={updateReq.isPending}
+                              onClick={() => updateReq.mutate({ id: r.id, dto: { status: "CANCELED" } })}
+                            >
+                              ✕ Rechazar
+                            </button>
+                          </div>
+                        )}
+                        {r.status === "ACCEPTED" && (
+                          <button
+                            className="btn-ghost"
+                            style={{ fontSize: "0.75rem", padding: "4px 10px", color: "var(--success)" }}
+                            disabled={updateReq.isPending}
+                            onClick={() => updateReq.mutate({ id: r.id, dto: { status: "COMPLETED" } })}
+                          >
+                            🏁 Completar
+                          </button>
+                        )}
+                        {(r.status === "COMPLETED" || r.status === "CANCELED") && (
+                          <span style={{ fontSize: "0.75rem", color: "var(--slate)", fontStyle: "italic" }}>
+                            {r.status === "COMPLETED" ? "Finalizado" : "Rechazado"}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

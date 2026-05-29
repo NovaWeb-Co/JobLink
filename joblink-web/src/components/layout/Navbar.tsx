@@ -1,9 +1,9 @@
 import { useAuth } from "../../context/AuthContext";
 
 type Page = "home" | "services" | "profile" | "admin";
-type Props = { page: Page; setPage: (p: Page) => void; };
+type Props = { page: Page; setPage: (p: Page) => void; onLogout: () => void; };
 
-export default function Navbar({ page, setPage }: Props) {
+export default function Navbar({ page, setPage, onLogout }: Props) {
   const { user, isAdmin, logout, setShowLoginModal } = useAuth();
 
   return (
@@ -77,7 +77,8 @@ export default function Navbar({ page, setPage }: Props) {
                   )}
                 </div>
               </button>
-              <button onClick={logout} className="btn-ghost" style={{ color: "#94A3B8", fontSize: "0.8rem" }}>Salir</button>
+              <button onClick={onLogout} className="btn-ghost" style={{ color: "#94A3B8", fontSize: "0.8rem" }}>Salir</button>
+
             </>
           ) : (
             <>

@@ -26,25 +26,31 @@ type Page =
   | { name: "admin" };
 
 function AppInner() {
-  const { showLoginModal, user } = useAuth();
-  const [page, setPage] = useState<Page>({ name: "home" });
+  const { showLoginModal, user, logout } = useAuth();
+  const [page, setPage] = useState<Page>({ name: 'home' });
 
-  function navPage(p: "home" | "services" | "profile" | "admin") {
-    if      (p === "home")     setPage({ name: "home" });
-    else if (p === "services") setPage({ name: "services" });
-    else if (p === "profile")  setPage({ name: "profile" });
-    else if (p === "admin")    setPage({ name: "admin" });
+  function handleLogout() {
+    logout();
+    setPage({ name: 'home' });  // ← redirigir al home
   }
 
+  function navPage(p: "home" | "services" | "profile" | "admin") {
+    if (p === "home") setPage({ name: "home" });
+    else if (p === "services") setPage({ name: "services" });
+    else if (p === "profile") setPage({ name: "profile" });
+    else if (p === "admin") setPage({ name: "admin" });
+  }
+
+
   const currentNav =
-    page.name === "home"     ? "home"     :
-    page.name === "services" || page.name === "service-detail" ? "services" :
-    page.name === "profile"  ? "profile"  :
-    page.name === "admin"    ? "admin"    : "home";
+    page.name === "home" ? "home" :
+      page.name === "services" || page.name === "service-detail" ? "services" :
+        page.name === "profile" ? "profile" :
+          page.name === "admin" ? "admin" : "home";
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--slate-light)" }}>
-      <Navbar page={currentNav as any} setPage={navPage as any} />
+      <Navbar page={currentNav as any} setPage={navPage} onLogout={handleLogout} />
 
       {showLoginModal && <AuthModal />}
 

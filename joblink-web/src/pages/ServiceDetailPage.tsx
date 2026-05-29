@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useServices, useRatings, useRequests, useCreateRequest, useCreateRating } from "../api/queries";
 import { useAuth } from "../context/AuthContext";
+import { toFullUrl } from "../api";
+
 
 const CATEGORY_EMOJI: Record<string, string> = {
   "Plomería": "🔧", "Electricidad": "⚡", "Carpintería": "🪚", "Pintura": "🎨",
@@ -12,13 +14,7 @@ const CAT_BG: Record<string, string> = {
   "Tecnología": "#E0E7FF", "Transporte": "#FFF7ED",
 };
 
-function extractImageUrl(description: string) {
-  const match = description.match(/\[img:(.*?)\]/);
-  return match ? match[1] : null;
-}
-function cleanDescription(description: string) {
-  return description.replace(/\[img:.*?\]\s*/g, "").trim();
-}
+
 
 type Props = { serviceId: number; onBack: () => void; onProviderClick: (id: number) => void; };
 
@@ -35,8 +31,8 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
   const svcRatings = ratings.filter(r => r.serviceId === serviceId);
   const avgScore = svcRatings.length ? svcRatings.reduce((a, r) => a + r.score, 0) / svcRatings.length : 0;
 
-  const imgUrl = service ? extractImageUrl(service.description) : null;
-  const cleanDesc = service ? cleanDescription(service.description) : "";
+  const imgUrl = toFullUrl(service?.imageUrl);
+  const cleanDesc = service?.description ?? "";
 
   const [reqDesc, setReqDesc] = useState("");
   const [reqDone, setReqDone] = useState(false);
@@ -136,13 +132,11 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
               </p>
               <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => onProviderClick(service.userId)}>
                 {provider.profilePhoto ? (
-                  <img src={provider.profilePhoto} alt={provider.name}
-                    style={{ width: 52, height: 52, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-                    onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  <img src={toFullUrl(provider.profilePhoto) ?? ""} alt={provider.name} style={{ width: 52, height: 52, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 ) : (
-                  <div style={{ width: 52, height: 52, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "var(--navy)", flexShrink: 0 }}>
-                    {provider.name[0]}{provider.lastname[0]}
-                  </div>
+                <div style={{ width: 52, height: 52, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "var(--navy)", flexShrink: 0 }}>
+                  {provider.name[0]}{provider.lastname[0]}
+                </div>
                 )}
                 <div style={{ flex: 1 }}>
                   <p style={{ fontWeight: 700, margin: "0 0 2px", color: "var(--navy)" }}>{provider.name} {provider.lastname}</p>

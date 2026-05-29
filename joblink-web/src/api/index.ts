@@ -28,6 +28,7 @@ export type Service = {
   price: number;
   location?: string | null;
   availability: boolean;
+  imageUrl?: string | null;
   userId: number;
   createdAt: string;
   updatedAt: string;
@@ -141,3 +142,11 @@ export const messagesApi = {
     http<Message>(`/messages/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
   remove: (id: number) => http<void>(`/messages/${id}`, { method: "DELETE" }),
 };
+
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+
+export function toFullUrl(path?: string | null): string | null {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  return `${API_URL}${path}`;
+}

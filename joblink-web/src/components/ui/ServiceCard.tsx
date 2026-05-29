@@ -1,4 +1,5 @@
 import type { Service } from "../../api/index";
+import { toFullUrl } from "../../api/index";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   "Plomería": "🔧", "Electricidad": "⚡", "Carpintería": "🪚", "Pintura": "🎨",
@@ -11,13 +12,7 @@ const CAT_BG: Record<string, string> = {
   "Tecnología": "#E0E7FF", "Transporte": "#FFF7ED", "Salud": "#F0FDF4", "Educación": "#EFF6FF",
 };
 
-function extractImageUrl(description: string) {
-  const match = description.match(/\[img:(.*?)\]/);
-  return match ? match[1] : null;
-}
-function cleanDescription(description: string) {
-  return description.replace(/\[img:.*?\]\s*/g, "").trim();
-}
+
 
 type Props = {
   service: Service;
@@ -27,8 +22,8 @@ type Props = {
 };
 
 export default function ServiceCard({ service, avgScore, ratingCount, onClick }: Props) {
-  const imgUrl = extractImageUrl(service.description);
-  const cleanDesc = cleanDescription(service.description);
+  const imgUrl = toFullUrl(service.imageUrl);
+  const cleanDesc = service.description;
 
   return (
     <div className="service-card" onClick={onClick}>
@@ -36,7 +31,7 @@ export default function ServiceCard({ service, avgScore, ratingCount, onClick }:
       {imgUrl ? (
         <div style={{ height: 140, overflow: "hidden" }}>
           <img
-            src={imgUrl}
+            src={toFullUrl(imgUrl) ?? undefined}
             alt={service.title}
             style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s" }}
             onMouseEnter={e => { (e.target as HTMLImageElement).style.transform = "scale(1.05)"; }}
@@ -77,7 +72,7 @@ export default function ServiceCard({ service, avgScore, ratingCount, onClick }:
         {service.user && (
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
             {service.user.profilePhoto ? (
-              <img src={service.user.profilePhoto} alt="" style={{ width: 20, height: 20, borderRadius: "50%", objectFit: "cover" }}
+              <img src={toFullUrl(service.user.profilePhoto) ?? ""} alt="" style={{ width: 20, height: 20, borderRadius: "50%", objectFit: "cover" }}
                 onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
             ) : (
               <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.55rem", fontWeight: 800, color: "var(--navy)", flexShrink: 0 }}>
