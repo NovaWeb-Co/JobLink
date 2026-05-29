@@ -4,14 +4,14 @@ import ServiceCard from "../components/ui/ServiceCard";
 import { useAuth } from "../context/AuthContext";
 
 const CATEGORIES = [
-  { id: "Plomería",     emoji: "🔧", label: "Plomería"     },
+  { id: "Plomería", emoji: "🔧", label: "Plomería" },
   { id: "Electricidad", emoji: "⚡", label: "Electricidad" },
-  { id: "Carpintería",  emoji: "🪚", label: "Carpintería"  },
-  { id: "Pintura",      emoji: "🎨", label: "Pintura"      },
-  { id: "Limpieza",     emoji: "🧹", label: "Limpieza"     },
-  { id: "Jardinería",   emoji: "🌿", label: "Jardinería"   },
-  { id: "Tecnología",   emoji: "💻", label: "Tecnología"   },
-  { id: "Transporte",   emoji: "🚚", label: "Transporte"   },
+  { id: "Carpintería", emoji: "🪚", label: "Carpintería" },
+  { id: "Pintura", emoji: "🎨", label: "Pintura" },
+  { id: "Limpieza", emoji: "🧹", label: "Limpieza" },
+  { id: "Jardinería", emoji: "🌿", label: "Jardinería" },
+  { id: "Tecnología", emoji: "💻", label: "Tecnología" },
+  { id: "Transporte", emoji: "🚚", label: "Transporte" },
 ];
 
 const STATS = [
@@ -70,7 +70,7 @@ export default function HomePage({ onGoToServices, onServiceClick }: Props) {
                 style={{ flex: 1, background: "rgba(255,255,255,0.95)", fontSize: "0.95rem", padding: "0.875rem 1rem" }}
               />
               <button type="submit" className="btn-primary" style={{ padding: "0.875rem 1.5rem", fontSize: "0.95rem", whiteSpace: "nowrap" }}>
-                🔍 Buscar
+                Buscar
               </button>
             </form>
 
@@ -127,7 +127,7 @@ export default function HomePage({ onGoToServices, onServiceClick }: Props) {
             <div className="empty">
               <div className="empty-icon">🔧</div>
               <p>Aún no hay servicios publicados.</p>
-              <button className="btn-primary" onClick={() => requireAuth(() => {})}>Publica el primero</button>
+              <button className="btn-primary" onClick={() => requireAuth(() => { })}>Publica el primero</button>
             </div>
           ) : (
             <div className="services-grid">
@@ -157,7 +157,7 @@ export default function HomePage({ onGoToServices, onServiceClick }: Props) {
           <button
             className="btn-primary"
             style={{ padding: "0.875rem 2rem", fontSize: "1rem" }}
-            onClick={() => requireAuth(() => {})}
+            onClick={() => requireAuth(() => { })}
           >
             Empezar gratis →
           </button>

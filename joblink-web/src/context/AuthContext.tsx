@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState } from "react";
+import type { ReactNode } from "react";
 import { authApi } from "../api/index";
 import type { Role } from "../api/index";
 
@@ -9,6 +10,9 @@ type AuthUser = {
   email: string;
   role: Role;
   token: string;
+  profilePhoto?: string | null; // ← NUEVO
+  phone?: string | null;        // ← NUEVO
+  address?: string | null;      // ← NUEVO
 } | null;
 
 type AuthContextType = {
@@ -23,6 +27,8 @@ type AuthContextType = {
   requireAuth: (action: () => void) => void;
   showLoginModal: boolean;
   setShowLoginModal: (v: boolean) => void;
+  // ← NUEVO: actualiza campos del usuario en el contexto y localStorage
+  updateProfile: (fields: Partial<Pick<NonNullable<AuthUser>, "profilePhoto" | "phone" | "address">>) => void;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -48,7 +54,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (pendingAction) { pendingAction(); setPendingAction(null); }
   }
 
-  // POST /auth/login — identifier acepta email o teléfono
+  // Actualiza campos del perfil en el contexto y en localStorage
+  // sin necesidad de hacer login de nuevo
+  function updateProfile(fields: Partial<Pick<NonNullable<AuthUser>, "profilePhoto" | "phone" | "address">>) {
+    if (!user) return;
+    const updated = { ...user, ...fields };
+    localStorage.setItem("jl_user", JSON.stringify(updated));
+    setUser(updated);
+  }
+
   async function login(identifier: string, password: string) {
     const res = await authApi.login({ identifier, password });
     saveSession(res.access_token, {
@@ -58,10 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: res.user.email,
       role: res.user.role,
       token: res.access_token,
+      profilePhoto: res.user.profilePhoto ?? null,
+      phone: res.user.phone ?? null,
+      address: res.user.address ?? null,
     });
   }
 
-  // POST /auth/register
   async function register(dto: {
     name: string; lastname: string; email: string; password: string;
     phone?: string; address?: string;
@@ -74,6 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: res.user.email,
       role: res.user.role,
       token: res.access_token,
+      profilePhoto: res.user.profilePhoto ?? null,
+      phone: res.user.phone ?? null,
+      address: res.user.address ?? null,
     });
   }
 
@@ -93,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{
       user, isAdmin, login, register, logout,
       requireAuth, showLoginModal, setShowLoginModal,
+      updateProfile,
     }}>
       {children}
     </AuthContext.Provider>

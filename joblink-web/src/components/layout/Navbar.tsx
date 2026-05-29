@@ -58,9 +58,18 @@ export default function Navbar({ page, setPage }: Props) {
                 onClick={() => setPage("profile")}
                 style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 10, padding: "6px 12px", cursor: "pointer" }}
               >
-                <div style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.8rem", color: "var(--navy)" }}>
-                  {user.name[0]}{user.lastname[0]}
-                </div>
+                {user.profilePhoto ? (
+                  <img
+                    src={user.profilePhoto}
+                    alt={user.name}
+                    style={{ width: 30, height: 30, borderRadius: "50%", objectFit: "cover" }}
+                    onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                ) : (
+                  <div style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.8rem", color: "var(--navy)" }}>
+                    {user.name[0]}{user.lastname[0]}
+                  </div>
+                )}
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                   <span style={{ color: "white", fontSize: "0.85rem", fontFamily: "DM Sans, sans-serif", lineHeight: 1.2 }}>{user.name}</span>
                   {isAdmin && (
