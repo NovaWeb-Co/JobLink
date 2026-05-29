@@ -31,7 +31,7 @@ export default function ServiceCard({ service, avgScore, ratingCount, onClick }:
       {imgUrl ? (
         <div style={{ height: 140, overflow: "hidden" }}>
           <img
-            src={toFullUrl(imgUrl) ?? undefined}
+            src={imgUrl ?? undefined}
             alt={service.title}
             style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s" }}
             onMouseEnter={e => { (e.target as HTMLImageElement).style.transform = "scale(1.05)"; }}

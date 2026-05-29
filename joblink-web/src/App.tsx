@@ -22,7 +22,7 @@ type Page =
   | { name: "services"; category?: string }
   | { name: "service-detail"; id: number }
   | { name: "provider"; id: number }
-  | { name: "profile" }
+  | { name: "profile"; openPublish?: boolean }
   | { name: "admin" };
 
 function AppInner() {
@@ -39,6 +39,10 @@ function AppInner() {
     else if (p === "services") setPage({ name: "services" });
     else if (p === "profile") setPage({ name: "profile" });
     else if (p === "admin") setPage({ name: "admin" });
+  }
+
+  function goToPublish() {
+    setPage({ name: "profile", openPublish: true });
   }
 
 
@@ -58,6 +62,7 @@ function AppInner() {
         <HomePage
           onGoToServices={(cat) => setPage({ name: "services", category: cat })}
           onServiceClick={(id) => setPage({ name: "service-detail", id })}
+          onGoToPublish={() => goToPublish()}
         />
       )}
       {page.name === "services" && (
@@ -80,7 +85,7 @@ function AppInner() {
           onServiceClick={(id) => setPage({ name: "service-detail", id })}
         />
       )}
-      {page.name === "profile" && user && <MyProfilePage />}
+      {page.name === "profile" && user && <MyProfilePage openPublish={page.openPublish} />}
       {page.name === "admin" && user && <AdminPage />}
 
       {/* Footer */}

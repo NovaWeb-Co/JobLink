@@ -27,7 +27,7 @@ const CAT_BG: Record<string, string> = {
   "Tecnología": "#E0E7FF", "Transporte": "#FFF7ED",
 };
 
-export default function MyProfilePage() {
+export default function MyProfilePage({ openPublish }: { openPublish?: boolean }) {
   const { user, logout, updateProfile } = useAuth();
   const { data: services = [] } = useServices();
   const { data: requests = [] } = useRequests();
@@ -55,7 +55,7 @@ export default function MyProfilePage() {
   const [profileSaved, setProfileSaved] = useState(false);
 
   // ── Servicio ────────────────────────────────────────────────────────────
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(openPublish ?? false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");

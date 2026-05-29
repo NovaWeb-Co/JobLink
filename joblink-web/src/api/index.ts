@@ -145,8 +145,13 @@ export const messagesApi = {
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
+// Convierte rutas relativas del backend (/uploads/foto.jpg)
+// a URLs completas (http://localhost:3000/uploads/foto.jpg).
+// Es idempotente: si ya es URL completa la deja igual.
 export function toFullUrl(path?: string | null): string | null {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  return `${API_URL}${path}`;
+  // Evitar doble barra
+  const clean = path.startsWith("/") ? path : `/${path}`;
+  return `${API_URL}${clean}`;
 }

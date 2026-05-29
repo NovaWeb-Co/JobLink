@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import { authApi } from "../api/index";
+import { toFullUrl } from "../api/index";
 import type { Role } from "../api/index";
 
 type AuthUser = {
@@ -55,10 +56,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   // Actualiza campos del perfil en el contexto y en localStorage
-  // sin necesidad de hacer login de nuevo
+  // sin necesidad de hacer login de nuevo.
+  // Normaliza profilePhoto a URL completa automáticamente.
   function updateProfile(fields: Partial<Pick<NonNullable<AuthUser>, "profilePhoto" | "phone" | "address">>) {
     if (!user) return;
-    const updated = { ...user, ...fields };
+    const normalized = {
+      ...fields,
+      // Siempre guardar URL completa para que funcione al recargar la página
+      ...(fields.profilePhoto !== undefined
+        ? { profilePhoto: toFullUrl(fields.profilePhoto) }
+        : {}),
+    };
+    const updated = { ...user, ...normalized };
     localStorage.setItem("jl_user", JSON.stringify(updated));
     setUser(updated);
   }
@@ -72,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: res.user.email,
       role: res.user.role,
       token: res.access_token,
-      profilePhoto: res.user.profilePhoto ?? null,
+      profilePhoto: toFullUrl(res.user.profilePhoto) ?? null,
       phone: res.user.phone ?? null,
       address: res.user.address ?? null,
     });
@@ -90,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: res.user.email,
       role: res.user.role,
       token: res.access_token,
-      profilePhoto: res.user.profilePhoto ?? null,
+      profilePhoto: toFullUrl(res.user.profilePhoto) ?? null,
       phone: res.user.phone ?? null,
       address: res.user.address ?? null,
     });

@@ -21,9 +21,9 @@ const STATS = [
   { label: "Ciudades", value: "12", icon: "📍" },
 ];
 
-type Props = { onGoToServices: (cat?: string) => void; onServiceClick: (id: number) => void; };
+type Props = { onGoToServices: (cat?: string) => void; onServiceClick: (id: number) => void; onGoToPublish: () => void; };
 
-export default function HomePage({ onGoToServices, onServiceClick }: Props) {
+export default function HomePage({ onGoToServices, onServiceClick, onGoToPublish }: Props) {
   const { data: services = [] } = useServices();
   const { data: ratings = [] } = useRatings();
   const { requireAuth, setShowLoginModal } = useAuth();
@@ -127,7 +127,7 @@ export default function HomePage({ onGoToServices, onServiceClick }: Props) {
             <div className="empty">
               <div className="empty-icon">🔧</div>
               <p>Aún no hay servicios publicados.</p>
-              <button className="btn-primary" onClick={() => requireAuth(() => { })}>Publica el primero</button>
+              <button className="btn-primary" onClick={() => requireAuth(onGoToPublish)}>Publica el primero</button>
             </div>
           ) : (
             <div className="services-grid">
@@ -157,7 +157,7 @@ export default function HomePage({ onGoToServices, onServiceClick }: Props) {
           <button
             className="btn-primary"
             style={{ padding: "0.875rem 2rem", fontSize: "1rem" }}
-            onClick={() => requireAuth(() => { })}
+            onClick={() => requireAuth(onGoToPublish)}
           >
             Empezar gratis →
           </button>
