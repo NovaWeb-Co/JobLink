@@ -43,7 +43,7 @@ model Service {
   title String
   description String
   category String
-  price Float
+  price Float?
   location String?
   availability Boolean @default(true)
   imageUrl    String?

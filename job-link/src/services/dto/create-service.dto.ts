@@ -11,7 +11,8 @@ export class CreateServiceDto {
     @IsString()
     @IsNotEmpty() category: string;
 
-    @IsNumber() price: number;
+    @IsNumber() 
+    @IsOptional() price?: number;
 
     @IsString()
     @IsOptional() location?: string;
