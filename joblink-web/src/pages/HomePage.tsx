@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useServices, useUsers, useRatings } from "../api/queries";
+import { useServices, useRatings } from "../api/queries";
 import ServiceCard from "../components/ui/ServiceCard";
 import { useAuth } from "../context/AuthContext";
 
@@ -26,7 +26,7 @@ type Props = { onGoToServices: (cat?: string) => void; onServiceClick: (id: numb
 export default function HomePage({ onGoToServices, onServiceClick, onGoToPublish }: Props) {
   const { data: services = [] } = useServices();
   const { data: ratings = [] } = useRatings();
-  const { requireAuth, setShowLoginModal } = useAuth();
+  const { requireAuth } = useAuth();
   const [search, setSearch] = useState("");
 
   function handleSearch(e: React.FormEvent) {

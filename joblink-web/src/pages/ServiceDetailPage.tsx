@@ -71,6 +71,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
 
   async function handleSendMsg(e: React.FormEvent) {
     e.preventDefault();
+    if (!service) return;
     requireAuth(async () => {
       await createMsg.mutateAsync({ content: msgContent, senderId: user!.id, receiverId: service.userId });
       setMsgDone(true); setMsgContent("");

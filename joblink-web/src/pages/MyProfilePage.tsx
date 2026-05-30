@@ -37,7 +37,6 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
   const createSvc = useCreateService();
   const updateSvc = useUpdateService();
   const deleteSvc = useDeleteService();
-  const createMsg = useCreateMessage();
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
   const updateReq = useUpdateRequest();
@@ -71,11 +70,6 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
   const [serviceImg, setServiceImg] = useState("");
   // Para mostrar preview al editar
   const [pendingImgFile, setPendingImgFile] = useState<File | null>(null);
-
-  // ── Mensaje ─────────────────────────────────────────────────────────────
-  const [msgTo, setMsgTo] = useState("");
-  const [msgContent, setMsgContent] = useState("");
-  const [msgDone, setMsgDone] = useState(false);
 
   if (!user) return null;
   useEffect(() => {
@@ -161,12 +155,6 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
     resetForm();
   }
 
-  async function onSendMessage(e: React.FormEvent) {
-    e.preventDefault();
-    await createMsg.mutateAsync({ content: msgContent, senderId: user!.id, receiverId: Number(msgTo) });
-    setMsgContent(""); setMsgTo(""); setMsgDone(true);
-    setTimeout(() => setMsgDone(false), 3000);
-  }
 
   // user.profilePhoto se actualiza en tiempo real via updateProfile del AuthContext
   const currentProfilePhoto = user?.profilePhoto ?? null;
