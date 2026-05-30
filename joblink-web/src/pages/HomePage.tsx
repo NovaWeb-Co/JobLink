@@ -21,9 +21,9 @@ const STATS = [
   { label: "Ciudades", value: "12", icon: "📍" },
 ];
 
-type Props = { onGoToServices: (cat?: string) => void; onServiceClick: (id: number) => void; onGoToPublish: () => void; };
+type Props = { onGoToServices: (cat?: string) => void; onServiceClick: (id: number) => void; };
 
-export default function HomePage({ onGoToServices, onServiceClick, onGoToPublish }: Props) {
+export default function HomePage({ onGoToServices, onServiceClick }: Props) {
   const { data: services = [] } = useServices();
   const { data: ratings = [] } = useRatings();
   const { requireAuth, setShowLoginModal } = useAuth();
@@ -61,7 +61,7 @@ export default function HomePage({ onGoToServices, onServiceClick, onGoToPublish
             </p>
 
             {/* Search bar */}
-            <form onSubmit={handleSearch} style={{ display: "flex", gap: 8, maxWidth: 540 }}>
+            <form onSubmit={handleSearch} className="hero-search" style={{ display: "flex", gap: 8, maxWidth: 540 }}>
               <input
                 className="input"
                 value={search}
@@ -83,13 +83,13 @@ export default function HomePage({ onGoToServices, onServiceClick, onGoToPublish
 
       {/* ─── STATS ────────────────────────────────────────────────────────── */}
       <section style={{ background: "var(--navy-mid)", padding: "1.5rem 0" }}>
-        <div className="layout-main" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "1rem" }}>
+        <div className="layout-main stats-grid">
           {STATS.map(s => (
-            <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ fontSize: "1.75rem" }}>{s.icon}</span>
+            <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: "1.5rem" }}>{s.icon}</span>
               <div>
-                <p style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.25rem", color: "var(--gold)", margin: 0 }}>{s.value}</p>
-                <p style={{ fontSize: "0.72rem", color: "#64748B", margin: 0 }}>{s.label}</p>
+                <p style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--gold)", margin: 0 }}>{s.value}</p>
+                <p style={{ fontSize: "0.7rem", color: "#64748B", margin: 0 }}>{s.label}</p>
               </div>
             </div>
           ))}
@@ -127,7 +127,7 @@ export default function HomePage({ onGoToServices, onServiceClick, onGoToPublish
             <div className="empty">
               <div className="empty-icon">🔧</div>
               <p>Aún no hay servicios publicados.</p>
-              <button className="btn-primary" onClick={() => requireAuth(onGoToPublish)}>Publica el primero</button>
+              <button className="btn-primary" onClick={() => requireAuth(() => { })}>Publica el primero</button>
             </div>
           ) : (
             <div className="services-grid">
@@ -145,7 +145,7 @@ export default function HomePage({ onGoToServices, onServiceClick, onGoToPublish
         </section>
 
         {/* ─── CTA BANNER ───────────────────────────────────────────────── */}
-        <section style={{ background: "var(--navy)", borderRadius: 20, padding: "2.5rem 2rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+        <section className="cta-banner" style={{ background: "var(--navy)", borderRadius: 20, padding: "2.5rem 2rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <h2 style={{ fontFamily: "Syne, sans-serif", color: "white", fontSize: "1.5rem", margin: "0 0 0.5rem" }}>
               ¿Eres un profesional independiente?
@@ -157,7 +157,7 @@ export default function HomePage({ onGoToServices, onServiceClick, onGoToPublish
           <button
             className="btn-primary"
             style={{ padding: "0.875rem 2rem", fontSize: "1rem" }}
-            onClick={() => requireAuth(onGoToPublish)}
+            onClick={() => requireAuth(() => { })}
           >
             Empezar gratis →
           </button>

@@ -67,7 +67,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
         ← Volver a servicios
       </button>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "1.5rem", alignItems: "start" }}>
+      <div className="detail-grid">
         {/* ─── Columna izquierda ─────────────────────────────────────────── */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
 
@@ -134,9 +134,9 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
                 {provider.profilePhoto ? (
                   <img src={toFullUrl(provider.profilePhoto) ?? ""} alt={provider.name} style={{ width: 52, height: 52, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 ) : (
-                <div style={{ width: 52, height: 52, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "var(--navy)", flexShrink: 0 }}>
-                  {provider.name[0]}{provider.lastname[0]}
-                </div>
+                  <div style={{ width: 52, height: 52, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "var(--navy)", flexShrink: 0 }}>
+                    {provider.name[0]}{provider.lastname[0]}
+                  </div>
                 )}
                 <div style={{ flex: 1 }}>
                   <p style={{ fontWeight: 700, margin: "0 0 2px", color: "var(--navy)" }}>{provider.name} {provider.lastname}</p>
@@ -213,7 +213,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onProviderClick }
         </div>
 
         {/* ─── Columna derecha ────────────────────────────────────────────── */}
-        <div style={{ position: "sticky", top: 80 }}>
+        <div className="detail-sticky booking-card-mobile" style={{ position: "sticky", top: 80 }}>
           <div className="card" style={{ padding: "1.5rem" }}>
             <p style={{ fontSize: "0.72rem", color: "var(--slate)", margin: "0 0 4px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Precio del servicio</p>
             <p style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "2rem", color: "var(--navy)", margin: "0 0 1.25rem" }}>

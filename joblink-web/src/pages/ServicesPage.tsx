@@ -4,10 +4,10 @@ import ServiceCard from "../components/ui/ServiceCard";
 
 const CATEGORIES = ["Todas", "Plomería", "Electricidad", "Carpintería", "Pintura", "Limpieza", "Jardinería", "Tecnología", "Transporte", "Educación", "Salud"];
 const SORTS = [
-  { value: "recent",    label: "Más recientes"   },
+  { value: "recent", label: "Más recientes" },
   { value: "price_asc", label: "Precio: menor a mayor" },
-  { value: "price_desc",label: "Precio: mayor a menor" },
-  { value: "rating",    label: "Mejor calificados" },
+  { value: "price_desc", label: "Precio: mayor a menor" },
+  { value: "rating", label: "Mejor calificados" },
 ];
 
 type Props = { initialCategory?: string; onServiceClick: (id: number) => void; };
@@ -16,9 +16,9 @@ export default function ServicesPage({ initialCategory, onServiceClick }: Props)
   const { data: services = [], isLoading } = useServices();
   const { data: ratings = [] } = useRatings();
 
-  const [search, setSearch]     = useState("");
+  const [search, setSearch] = useState("");
   const [category, setCategory] = useState(initialCategory ?? "Todas");
-  const [sort, setSort]         = useState("recent");
+  const [sort, setSort] = useState("recent");
   const [onlyAvailable, setOnlyAvailable] = useState(false);
 
   // avg score per service
@@ -47,10 +47,10 @@ export default function ServicesPage({ initialCategory, onServiceClick }: Props)
     }
     if (onlyAvailable) res = res.filter(s => s.availability);
     switch (sort) {
-      case "price_asc":  res.sort((a, b) => a.price - b.price); break;
+      case "price_asc": res.sort((a, b) => a.price - b.price); break;
       case "price_desc": res.sort((a, b) => b.price - a.price); break;
-      case "rating":     res.sort((a, b) => (avgByService[b.id]?.avg ?? 0) - (avgByService[a.id]?.avg ?? 0)); break;
-      default:           res.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      case "rating": res.sort((a, b) => (avgByService[b.id]?.avg ?? 0) - (avgByService[a.id]?.avg ?? 0)); break;
+      default: res.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
     return res;
   }, [services, category, search, sort, onlyAvailable, avgByService]);
@@ -64,7 +64,7 @@ export default function ServicesPage({ initialCategory, onServiceClick }: Props)
       </div>
 
       {/* Search + filters */}
-      <div style={{ background: "white", borderRadius: 14, padding: "1.25rem", boxShadow: "var(--card-shadow)", marginBottom: "1.5rem", display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
+      <div className="filters-bar">
         <input
           className="input"
           value={search}
