@@ -31,7 +31,7 @@ export default function ServiceCard({ service, avgScore, ratingCount, onClick }:
       {imgUrl ? (
         <div style={{ height: 140, overflow: "hidden" }}>
           <img
-            src={imgUrl ?? undefined}
+            src={toFullUrl(imgUrl) ?? undefined}
             alt={service.title}
             style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s" }}
             onMouseEnter={e => { (e.target as HTMLImageElement).style.transform = "scale(1.05)"; }}
@@ -98,10 +98,18 @@ export default function ServiceCard({ service, avgScore, ratingCount, onClick }:
         )}
 
         <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid #F1F5F9" }}>
-          <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.05rem", color: "var(--navy)" }}>
-            ${service.price.toLocaleString()}
-          </span>
-          <span style={{ fontSize: "0.68rem", color: "var(--slate)" }}>COP / servicio</span>
+          {service.price != null ? (
+            <>
+              <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.05rem", color: "var(--navy)" }}>
+                ${service.price.toLocaleString()}
+              </span>
+              <span style={{ fontSize: "0.68rem", color: "var(--slate)" }}>COP / servicio</span>
+            </>
+          ) : (
+            <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--teal)", display: "flex", alignItems: "center", gap: 4 }}>
+              💬 Precio negociable
+            </span>
+          )}
         </div>
       </div>
     </div>

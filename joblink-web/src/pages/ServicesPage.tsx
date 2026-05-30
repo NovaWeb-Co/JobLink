@@ -47,8 +47,8 @@ export default function ServicesPage({ initialCategory, onServiceClick }: Props)
     }
     if (onlyAvailable) res = res.filter(s => s.availability);
     switch (sort) {
-      case "price_asc": res.sort((a, b) => a.price - b.price); break;
-      case "price_desc": res.sort((a, b) => b.price - a.price); break;
+      case "price_asc": res.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity)); break;
+      case "price_desc": res.sort((a, b) => (b.price ?? -1) - (a.price ?? -1)); break;
       case "rating": res.sort((a, b) => (avgByService[b.id]?.avg ?? 0) - (avgByService[a.id]?.avg ?? 0)); break;
       default: res.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
@@ -64,7 +64,7 @@ export default function ServicesPage({ initialCategory, onServiceClick }: Props)
       </div>
 
       {/* Search + filters */}
-      <div className="filters-bar">
+      <div style={{ background: "white", borderRadius: 14, padding: "1.25rem", boxShadow: "var(--card-shadow)", marginBottom: "1.5rem", display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
         <input
           className="input"
           value={search}

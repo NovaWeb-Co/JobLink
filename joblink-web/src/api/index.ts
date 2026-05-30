@@ -25,7 +25,7 @@ export type Service = {
   title: string;
   description: string;
   category: string;
-  price: number;
+  price?: number | null;  // opcional — null/undefined = precio negociable
   location?: string | null;
   availability: boolean;
   imageUrl?: string | null;
@@ -103,7 +103,7 @@ export const servicesApi = {
   get: (id: number) => http<Service>(`/services/${id}`),
   create: (dto: {
     title: string; description: string; category: string;
-    price: number; location?: string; availability?: boolean; userId: number;
+    price?: number; location?: string; availability?: boolean; userId: number;
   }) => http<Service>("/services", { method: "POST", body: JSON.stringify(dto) }),
   update: (id: number, dto: Partial<Service>) =>
     http<Service>(`/services/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
@@ -145,13 +145,8 @@ export const messagesApi = {
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
-// Convierte rutas relativas del backend (/uploads/foto.jpg)
-// a URLs completas (http://localhost:3000/uploads/foto.jpg).
-// Es idempotente: si ya es URL completa la deja igual.
 export function toFullUrl(path?: string | null): string | null {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  // Evitar doble barra
-  const clean = path.startsWith("/") ? path : `/${path}`;
-  return `${API_URL}${clean}`;
+  return `${API_URL}${path}`;
 }

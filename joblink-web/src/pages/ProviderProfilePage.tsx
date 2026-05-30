@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useServices, useRatings, useCreateMessage } from "../api/queries";
 import { usersApi } from "../api/index";
+import { toFullUrl } from "../api/index";
 import { useAuth } from "../context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 
@@ -87,7 +88,7 @@ export default function ProviderProfilePage({ userId, onBack, onServiceClick }: 
             <div style={{ marginTop: -48 }}>
               {provider.profilePhoto ? (
                 <img
-                  src={provider.profilePhoto}
+                  src={toFullUrl(provider.profilePhoto) ?? ""}
                   alt={provider.name}
                   style={{ width: 96, height: 96, borderRadius: "50%", objectFit: "cover", border: "4px solid white", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}
                   onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
@@ -216,9 +217,22 @@ export default function ProviderProfilePage({ userId, onBack, onServiceClick }: 
                   return (
                     <div key={s.id} className="service-card" onClick={() => onServiceClick(s.id)}>
                       {/* Imagen del servicio: si no hay foto, emoji de categoría con fondo */}
-                      <div className="service-card-img" style={{ background: CAT_BG[s.category] ?? "#F1F5F9" }}>
-                        <span style={{ fontSize: "2.5rem" }}>{CAT_EMOJI[s.category] ?? "🛠️"}</span>
-                      </div>
+                      {toFullUrl(s.imageUrl) ? (
+                        <div style={{ height: 140, overflow: "hidden" }}>
+                          <img src={toFullUrl(s.imageUrl)!} alt={s.title}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            onError={e => {
+                              const p = (e.target as HTMLImageElement).parentElement!;
+                              p.style.background = CAT_BG[s.category] ?? "#F1F5F9";
+                              p.style.display = "flex"; p.style.alignItems = "center"; p.style.justifyContent = "center";
+                              p.innerHTML = `<span style="font-size:2.5rem">${CAT_EMOJI[s.category] ?? "🛠️"}</span>`;
+                            }} />
+                        </div>
+                      ) : (
+                        <div className="service-card-img" style={{ background: CAT_BG[s.category] ?? "#F1F5F9" }}>
+                          <span style={{ fontSize: "2.5rem" }}>{CAT_EMOJI[s.category] ?? "🛠️"}</span>
+                        </div>
+                      )}
                       <div className="service-card-body">
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                           <span className="badge badge-gold" style={{ fontSize: "0.68rem" }}>{s.category}</span>
@@ -238,7 +252,10 @@ export default function ProviderProfilePage({ userId, onBack, onServiceClick }: 
                           </div>
                         )}
                         <p style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, margin: "auto 0 0", color: "var(--navy)", fontSize: "1.05rem" }}>
-                          ${s.price.toLocaleString()} <span style={{ fontFamily: "DM Sans, sans-serif", fontWeight: 400, fontSize: "0.72rem", color: "var(--slate)" }}>COP</span>
+                          {s.price != null
+                            ? <>${s.price.toLocaleString()} <span style={{ fontFamily: "DM Sans, sans-serif", fontWeight: 400, fontSize: "0.72rem", color: "var(--slate)" }}>COP</span></>
+                            : <span style={{ fontSize: "0.82rem", color: "var(--teal)", fontWeight: 600 }}>💬 Precio negociable</span>
+                          }
                         </p>
                       </div>
                     </div>

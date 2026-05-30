@@ -27,7 +27,7 @@ const CAT_BG: Record<string, string> = {
   "Tecnología": "#E0E7FF", "Transporte": "#FFF7ED",
 };
 
-export default function MyProfilePage({ openPublish }: { openPublish?: boolean }) {
+export default function MyProfilePage() {
   const { user, logout, updateProfile } = useAuth();
   const { data: services = [] } = useServices();
   const { data: requests = [] } = useRequests();
@@ -49,13 +49,16 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
 
   // ── Perfil ──────────────────────────────────────────────────────────────
   const [editProfile, setEditProfile] = useState(false);
+  const [firstName, setFirstName] = useState(user?.name ?? "");      // ← nuevo
+  const [lastName, setLastName] = useState(user?.lastname ?? "");  // ← nuevo
+  const [email, setEmail] = useState(user?.email ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
   const [address, setAddress] = useState(user?.address ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
 
   // ── Servicio ────────────────────────────────────────────────────────────
-  const [showForm, setShowForm] = useState(openPublish ?? false);
+  const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
@@ -106,6 +109,9 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
     await updateUser.mutateAsync({
       id: user!.id,
       dto: {
+        name: firstName || undefined,
+        lastname: lastName || undefined,
+        email: email || undefined,
         phone: phone || undefined,
         address: address || undefined,
       }
@@ -121,7 +127,8 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
     e.preventDefault();
     const dto = {
       title, description: desc, category,
-      price: Number(price), location,
+      price: price ? Number(price) : undefined,  // undefined = precio negociable
+      location,
       availability: avail, userId: user!.id,
       imageUrl: serviceImg || undefined,
     };
@@ -234,12 +241,32 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                 <div>
+                  <label className="label">Nombre</label>
+                  <input className="input" value={firstName}
+                    onChange={e => setFirstName(e.target.value)} placeholder="Ana" />
+                </div>
+                <div>
+                  <label className="label">Apellido</label>
+                  <input className="input" value={lastName}
+                    onChange={e => setLastName(e.target.value)} placeholder="García" />
+                </div>
+                <div style={{ gridColumn: "span 2" }}>
+                  <label className="label">Email</label>
+                  <input type="email" className="input" value={email}
+                    onChange={e => setEmail(e.target.value)} placeholder="tu@email.com" />
+                  <p style={{ fontSize: "0.7rem", color: "var(--slate)", marginTop: 2 }}>
+                    ⚠️ Al cambiar el email deberás ingresar con el nuevo correo
+                  </p>
+                </div>
+                <div>
                   <label className="label">Teléfono</label>
-                  <input className="input" value={phone} onChange={e => setPhone(e.target.value)} placeholder="3001234567" />
+                  <input className="input" value={phone}
+                    onChange={e => setPhone(e.target.value)} placeholder="3001234567" />
                 </div>
                 <div>
                   <label className="label">Dirección / Zona de trabajo</label>
-                  <input className="input" value={address} onChange={e => setAddress(e.target.value)} placeholder="Bogotá, Kennedy" />
+                  <input className="input" value={address}
+                    onChange={e => setAddress(e.target.value)} placeholder="Bogotá, Kennedy" />
                 </div>
               </div>
               <div style={{ display: "flex", gap: "0.75rem", justifyContent: "space-between", flexWrap: "wrap" }}>
@@ -352,10 +379,12 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
                     </select>
                   </div>
                   <div>
-                    <label className="label">Precio (COP)</label>
+                    <label className="label">Precio (COP) <span style={{ color: "var(--slate)", fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>— opcional</span></label>
                     <input type="number" min="0" className="input" value={price}
-                      onChange={e => setPrice(e.target.value)} placeholder="Ej: 80000" required />
-                    <p style={{ fontSize: "0.7rem", color: "var(--slate)", marginTop: 2 }}>💡 Precio por servicio o por hora</p>
+                      onChange={e => setPrice(e.target.value)} placeholder="Dejar vacío = precio negociable" />
+                    <p style={{ fontSize: "0.7rem", color: "var(--slate)", marginTop: 2 }}>
+                      💡 Sin precio = el cliente y tú negocian directamente
+                    </p>
                   </div>
                   <div>
                     <label className="label">Zona de trabajo</label>
@@ -441,7 +470,10 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
                         </div>
                       )}
                       <p style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, margin: "auto 0 0", color: "var(--navy)", fontSize: "1rem" }}>
-                        ${s.price.toLocaleString()} <span style={{ fontFamily: "DM Sans, sans-serif", fontWeight: 400, fontSize: "0.7rem", color: "var(--slate)" }}>COP</span>
+                        {s.price != null
+                          ? <>${s.price.toLocaleString()} <span style={{ fontFamily: "DM Sans, sans-serif", fontWeight: 400, fontSize: "0.7rem", color: "var(--slate)" }}>COP</span></>
+                          : <span style={{ fontSize: "0.82rem", color: "var(--teal)", fontWeight: 600 }}>💬 Precio negociable</span>
+                        }
                       </p>
                       <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
                         <button className="btn-ghost" style={{ fontSize: "0.75rem", padding: "4px 10px", flex: 1 }}
@@ -596,65 +628,139 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
         )
       )}
 
-      {/* ── TAB MENSAJES ──────────────────────────────────────────────────── */}
-      {tab === "messages" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div className="card" style={{ padding: "1.25rem" }}>
-            <h3 style={{ fontFamily: "Syne, sans-serif", fontSize: "1rem", marginBottom: "1rem" }}>Enviar mensaje</h3>
-            {msgDone && <div className="alert alert-success">✅ Mensaje enviado.</div>}
-            <form onSubmit={onSendMessage} style={{ display: "grid", gridTemplateColumns: "160px 1fr auto", gap: "0.75rem", alignItems: "flex-end" }}>
-              <div>
-                <label className="label">ID del destinatario</label>
-                <input type="number" className="input" value={msgTo} onChange={e => setMsgTo(e.target.value)} placeholder="Ej: 2" required />
-              </div>
-              <div>
-                <label className="label">Mensaje</label>
-                <input className="input" value={msgContent} onChange={e => setMsgContent(e.target.value)} placeholder="Escribe tu mensaje..." required />
-              </div>
-              <button type="submit" className="btn-primary" disabled={createMsg.isPending}>
-                {createMsg.isPending ? "..." : "Enviar"}
-              </button>
-            </form>
-          </div>
+      {/* ── TAB MENSAJES — conversaciones por usuario ─────────────────── */}
+      {tab === "messages" && (() => {
+        // Agrupar mensajes por el otro usuario (sin exponer IDs)
+        const conversationMap = new Map<number, { otherUser: typeof myMessages[0]["sender"]; messages: typeof myMessages; unread: number }>();
+        myMessages.forEach(m => {
+          const otherId = m.senderId === user.id ? m.receiverId : m.senderId;
+          const otherUser = m.senderId === user.id ? m.receiver : m.sender;
+          if (!conversationMap.has(otherId)) {
+            conversationMap.set(otherId, { otherUser, messages: [], unread: 0 });
+          }
+          const conv = conversationMap.get(otherId)!;
+          conv.messages.push(m);
+          if (!m.isRead && m.receiverId === user.id) conv.unread++;
+        });
+        const conversations = Array.from(conversationMap.entries())
+          .sort((a, b) => {
+            const lastA = a[1].messages[a[1].messages.length - 1]?.createdAt ?? "";
+            const lastB = b[1].messages[b[1].messages.length - 1]?.createdAt ?? "";
+            return lastB.localeCompare(lastA);
+          });
 
-          {myMessages.length === 0 ? (
-            <div className="empty"><div className="empty-icon">💬</div><p>No tienes mensajes aún.</p></div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {myMessages.map(m => {
-                const other = m.senderId === user.id ? m.receiver : m.sender;
-                const isMine = m.senderId === user.id;
-                return (
-                  <div key={m.id} className="card" style={{ padding: "1rem", display: "flex", gap: "0.875rem", alignItems: "flex-start" }}>
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: isMine ? "var(--gold)" : "var(--slate-light)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700, color: isMine ? "var(--navy)" : "var(--slate)", flexShrink: 0 }}>
-                      {other ? `${other.name[0]}${other.lastname[0]}` : "?"}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <span style={{ fontSize: "0.875rem", fontWeight: 600 }}>
-                            {other ? `${other.name} ${other.lastname}` : "Usuario"}
-                          </span>
-                          <span className={`badge ${isMine ? "badge-blue" : "badge-teal"}`} style={{ fontSize: "0.65rem" }}>
-                            {isMine ? "↑ Enviado" : "↓ Recibido"}
-                          </span>
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            {/* Lista de conversaciones */}
+            {conversations.length === 0 ? (
+              <div className="empty">
+                <div className="empty-icon">💬</div>
+                <p>No tienes mensajes aún.</p>
+                <p style={{ fontSize: "0.85rem" }}>Puedes escribirle a un proveedor desde la página de cualquier servicio.</p>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {conversations.map(([otherId, conv]) => {
+                  const lastMsg = conv.messages[conv.messages.length - 1];
+                  const otherUser = conv.otherUser;
+                  return (
+                    <div key={otherId} className="card" style={{ padding: "1rem" }}>
+                      {/* Encabezado de conversación */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "0.875rem" }}>
+                        <div style={{ position: "relative", flexShrink: 0 }}>
+                          {otherUser?.profilePhoto ? (
+                            <img src={otherUser.profilePhoto} alt=""
+                              style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover" }}
+                              onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          ) : (
+                            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", fontWeight: 700, color: "var(--navy)" }}>
+                              {otherUser ? `${otherUser.name[0]}${otherUser.lastname[0]}` : "?"}
+                            </div>
+                          )}
+                          {conv.unread > 0 && (
+                            <div style={{ position: "absolute", top: -4, right: -4, width: 16, height: 16, borderRadius: "50%", background: "var(--danger)", color: "white", fontSize: "0.6rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              {conv.unread}
+                            </div>
+                          )}
                         </div>
-                        <span style={{ fontSize: "0.72rem", color: "var(--slate)" }}>
-                          {new Date(m.createdAt).toLocaleDateString("es-CO")}
+                        <div style={{ flex: 1 }}>
+                          <p style={{ fontWeight: 600, fontSize: "0.9rem", margin: 0, color: "var(--navy)" }}>
+                            {otherUser ? `${otherUser.name} ${otherUser.lastname}` : "Usuario"}
+                          </p>
+                          <p style={{ fontSize: "0.72rem", color: "var(--slate)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 260 }}>
+                            {lastMsg?.senderId === user.id ? "Tú: " : ""}{lastMsg?.content}
+                          </p>
+                        </div>
+                        <span style={{ fontSize: "0.68rem", color: "var(--slate)", flexShrink: 0 }}>
+                          {lastMsg ? new Date(lastMsg.createdAt).toLocaleDateString("es-CO") : ""}
                         </span>
                       </div>
-                      <p style={{ fontSize: "0.875rem", color: "#475569", margin: 0 }}>{m.content}</p>
+
+                      {/* Hilo de mensajes */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 200, overflowY: "auto", marginBottom: "0.875rem", padding: "0 4px" }}>
+                        {conv.messages.map(m => {
+                          const isMine = m.senderId === user.id;
+                          return (
+                            <div key={m.id} style={{ display: "flex", justifyContent: isMine ? "flex-end" : "flex-start" }}>
+                              <div style={{
+                                maxWidth: "75%", padding: "6px 12px", borderRadius: isMine ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
+                                background: isMine ? "var(--navy)" : "#F1F5F9",
+                                color: isMine ? "white" : "var(--navy)", fontSize: "0.85rem",
+                              }}>
+                                {m.content}
+                                <div style={{ fontSize: "0.62rem", opacity: 0.6, marginTop: 2, textAlign: isMine ? "right" : "left" }}>
+                                  {new Date(m.createdAt).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}
+                                  {isMine && (m.isRead ? " ✓✓" : " ✓")}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Responder en esta conversación */}
+                      <ReplyForm
+                        receiverId={otherId}
+                        receiverName={otherUser ? otherUser.name : "usuario"}
+                        senderId={user.id}
+                      />
                     </div>
-                    {m.isRead
-                      ? <span className="badge badge-green" style={{ fontSize: "0.65rem", flexShrink: 0 }}>Leído</span>
-                      : <span className="badge badge-gray" style={{ fontSize: "0.65rem", flexShrink: 0 }}>No leído</span>}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
+  );
+}
+
+// Componente de respuesta dentro de una conversación — sin exponer IDs al usuario
+function ReplyForm({ receiverId, receiverName, senderId }: {
+  receiverId: number; receiverName: string; senderId: number;
+}) {
+  const createMsg = useCreateMessage();
+  const [text, setText] = useState("");
+  const [sent, setSent] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!text.trim()) return;
+    await createMsg.mutateAsync({ content: text, senderId, receiverId });
+    setText(""); setSent(true);
+    setTimeout(() => setSent(false), 2000);
+  }
+
+  return (
+    <form onSubmit={handleSubmit} style={{ display: "flex", gap: "0.5rem" }}>
+      <input className="input" value={text} onChange={e => setText(e.target.value)}
+        placeholder={sent ? "✅ Enviado" : `Responder a ${receiverName}...`}
+        required style={{ flex: 1, fontSize: "0.85rem" }} />
+      <button type="submit" className="btn-primary" style={{ padding: "7px 14px", fontSize: "0.82rem" }}
+        disabled={createMsg.isPending || !text.trim()}>
+        {createMsg.isPending ? "..." : "Enviar"}
+      </button>
+    </form>
   );
 }
