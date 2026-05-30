@@ -21,9 +21,9 @@ const STATS = [
   { label: "Ciudades", value: "12", icon: "📍" },
 ];
 
-type Props = { onGoToServices: (cat?: string) => void; onServiceClick: (id: number) => void; };
+type Props = { onGoToServices: (cat?: string) => void; onServiceClick: (id: number) => void; onGoToPublish: () => void; };
 
-export default function HomePage({ onGoToServices, onServiceClick }: Props) {
+export default function HomePage({ onGoToServices, onServiceClick, onGoToPublish }: Props) {
   const { data: services = [] } = useServices();
   const { data: ratings = [] } = useRatings();
   const { requireAuth, setShowLoginModal } = useAuth();
@@ -111,6 +111,25 @@ export default function HomePage({ onGoToServices, onServiceClick }: Props) {
           </div>
         </section>
 
+        {/* ─── CTA BANNER ───────────────────────────────────────────────── */}
+        <section className="cta-banner" style={{ background: "var(--navy)", borderRadius: 20, padding: "2.5rem 2rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+          <div>
+            <h2 style={{ fontFamily: "Syne, sans-serif", color: "white", fontSize: "1.5rem", margin: "0 0 0.5rem" }}>
+              ¿Eres un profesional independiente?
+            </h2>
+            <p style={{ color: "#64748B", margin: 0, fontSize: "0.9rem" }}>
+              Publica tus servicios gratis y llega a miles de clientes cerca de ti.
+            </p>
+          </div>
+          <button
+            className="btn-primary"
+            style={{ padding: "0.875rem 2rem", fontSize: "1rem" }}
+            onClick={() => requireAuth(onGoToPublish)}
+          >
+            Empezar gratis →
+          </button>
+        </section>
+
         {/* ─── FEATURED SERVICES ────────────────────────────────────────── */}
         <section style={{ marginBottom: "3rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.25rem" }}>
@@ -127,7 +146,7 @@ export default function HomePage({ onGoToServices, onServiceClick }: Props) {
             <div className="empty">
               <div className="empty-icon">🔧</div>
               <p>Aún no hay servicios publicados.</p>
-              <button className="btn-primary" onClick={() => requireAuth(() => { })}>Publica el primero</button>
+              <button className="btn-primary" onClick={() => requireAuth(onGoToPublish)}>Publica el primero</button>
             </div>
           ) : (
             <div className="services-grid">
@@ -144,24 +163,6 @@ export default function HomePage({ onGoToServices, onServiceClick }: Props) {
           )}
         </section>
 
-        {/* ─── CTA BANNER ───────────────────────────────────────────────── */}
-        <section className="cta-banner" style={{ background: "var(--navy)", borderRadius: 20, padding: "2.5rem 2rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
-          <div>
-            <h2 style={{ fontFamily: "Syne, sans-serif", color: "white", fontSize: "1.5rem", margin: "0 0 0.5rem" }}>
-              ¿Eres un profesional independiente?
-            </h2>
-            <p style={{ color: "#64748B", margin: 0, fontSize: "0.9rem" }}>
-              Publica tus servicios gratis y llega a miles de clientes cerca de ti.
-            </p>
-          </div>
-          <button
-            className="btn-primary"
-            style={{ padding: "0.875rem 2rem", fontSize: "1rem" }}
-            onClick={() => requireAuth(() => { })}
-          >
-            Empezar gratis →
-          </button>
-        </section>
       </div>
     </div>
   );
