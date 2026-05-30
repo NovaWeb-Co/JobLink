@@ -79,57 +79,59 @@ export class AuthService {
     }
 
     async login(loginDto: LoginDto) {
+    const user =
+        await this.prisma.user.findFirst({
+            where: {
+                OR: [
+                    {
+                        email: loginDto.identifier,
+                    },
+                    {
+                        phone: loginDto.identifier,
+                    },
+                ],
+            },
+        });
 
-        const user =
-            await this.prisma.user.findFirst({
-                where: {
-                    OR: [
-                        {
-                            email:
-                                loginDto.identifier,
-                        },
-                        {
-                            phone:
-                                loginDto.identifier,
-                        },
-                    ],
-                },
-            });
-
-        if (!user) {
-            throw new UnauthorizedException(
-                'Usuario no encontrado',
-            );
-        }
-
-        const passwordValid =
-            await bcrypt.compare(
-                loginDto.password,
-                user.password,
-            );
-
-        if (!passwordValid) {
-            throw new UnauthorizedException(
-                'Contraseña incorrecta',
-            );
-        }
-
-        const payload = {
-            sub: user.id,
-            email: user.email,
-            role: user.role,
-        };
-
-        const {
-            password,
-            ...userWithoutPassword
-        } = user;
-
-        return {
-            access_token:
-                this.jwtService.sign(payload),
-            user: userWithoutPassword,
-        };
+    if (!user) {
+        throw new UnauthorizedException(
+            'Usuario no encontrado',
+        );
     }
+
+    // 🔴 VALIDAR CUENTA ACTIVA
+    if (!user.isActive) {
+        throw new UnauthorizedException(
+            'Cuenta desactivada',
+        );
+    }
+
+    const passwordValid =
+        await bcrypt.compare(
+            loginDto.password,
+            user.password,
+        );
+
+    if (!passwordValid) {
+        throw new UnauthorizedException(
+            'Contraseña incorrecta',
+        );
+    }
+
+    const payload = {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+    };
+
+    const {
+        password,
+        ...userWithoutPassword
+    } = user;
+
+    return {
+        access_token: this.jwtService.sign(payload),
+        user: userWithoutPassword,
+    };
 }
-///
+}

@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -45,14 +46,70 @@ export class UsersService {
         });
     }
 
-    async remove(id: number) {
-        await this.findOne(id);
-        await this.prisma.service.deleteMany({
-            where: { userId: id }
-        });
+    async remove(
+        targetId: number,
+        currentUserId: number,
+        currentRole: Role,
+    ) {
+        const targetUser =
+            await this.prisma.user.findUnique({
+                where: {
+                    id: targetId,
+                },
+            });
 
-        await this.prisma.user.delete({
-            where: { id },
+        if (!targetUser) {
+            throw new NotFoundException(
+                'Usuario no encontrado',
+            );
+        }
+
+        // USER
+        if (currentRole === Role.USER) {
+            if (currentUserId !== targetId) {
+                throw new ForbiddenException(
+                    'Solo puedes eliminar tu propia cuenta',
+                );
+            }
+        }
+
+        // ADMIN
+        if (currentRole === Role.ADMIN) {
+            // Puede eliminar su propia cuenta
+            if (currentUserId !== targetId) {
+                // Puede eliminar USER
+                if (targetUser.role !== Role.USER) {
+                    throw new ForbiddenException(
+                        'Solo puedes eliminar usuarios normales',
+                    );
+                }
+            }
+        }
+
+        // ROOT
+        if (currentRole === Role.ROOT) {
+            // No puede eliminarse a sí mismo
+            if (currentUserId === targetId) {
+                throw new ForbiddenException(
+                    'El usuario ROOT no puede eliminar su propia cuenta',
+                );
+            }
+
+            // No puede eliminar otro ROOT
+            if (targetUser.role === Role.ROOT) {
+                throw new ForbiddenException(
+                    'No se puede eliminar un usuario ROOT',
+                );
+            }
+        }
+
+        return this.prisma.user.update({
+            where: {
+                id: targetId,
+            },
+            data: {
+                isActive: false,
+            },
         });
     }
 
@@ -72,4 +129,47 @@ export class UsersService {
             },
         });
     }
+
+    async reactivate(
+  targetId: number,
+  currentRole: Role,
+) {
+  const user =
+    await this.prisma.user.findUnique({
+      where: { id: targetId },
+    });
+
+  if (!user) {
+    throw new NotFoundException(
+      'Usuario no encontrado',
+    );
+  }
+
+  if (
+    currentRole === Role.ADMIN &&
+    user.role !== Role.USER
+  ) {
+    throw new ForbiddenException(
+      'Solo puedes reactivar usuarios normales',
+    );
+  }
+
+  if (
+    currentRole === Role.ROOT &&
+    user.role === Role.ROOT
+  ) {
+    throw new ForbiddenException(
+      'No puedes modificar otro ROOT',
+    );
+  }
+
+  return this.prisma.user.update({
+    where: {
+      id: targetId,
+    },
+    data: {
+      isActive: true,
+    },
+  });
+}
 }

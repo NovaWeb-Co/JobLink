@@ -14,7 +14,7 @@ export class UsersController {
 
   constructor(private readonly usersService: UsersService) { }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.ROOT)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   async findAll() {
@@ -34,16 +34,17 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
+  @Roles(Role.USER, Role.ADMIN, Role.ROOT)
   @HttpCode(204)
   async remove(
     @Param('id', ParseIntPipe) id: number,
     @Request() req: any,
   ) {
-    // Permite si es ADMIN o si el usuario está borrando su propia cuenta
-    if (req.user.role !== Role.ADMIN && req.user.id !== id) {
-      throw new ForbiddenException('No tienes permiso para eliminar esta cuenta');
-    }
-    await this.usersService.remove(id);
+    await this.usersService.remove(
+      id,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -99,5 +100,17 @@ export class UsersController {
 
       user,
     };
+  }
+
+  @Patch(':id/reactivate')
+  @Roles(Role.ADMIN, Role.ROOT)
+  reactivate(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: any,
+  ) {
+    return this.usersService.reactivate(
+      id,
+      req.user.role,
+    );
   }
 }

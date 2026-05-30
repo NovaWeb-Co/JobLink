@@ -123,4 +123,5 @@ enum RequestStatus {
 enum Role {
   USER
   ADMIN
+  ROOT
 }
