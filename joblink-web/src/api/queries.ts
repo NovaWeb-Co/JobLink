@@ -3,9 +3,6 @@ import {
   usersApi, servicesApi, requestsApi, ratingsApi, messagesApi,
   type Service, type User, type Request, type Rating, type Message, type RequestStatus,
 } from "./index";
-import { http } from "./http";
-
-
 
 
 // ─── Services ────────────────────────────────────────────────────────────────
@@ -16,13 +13,12 @@ export function useCreateService() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (dto: Parameters<typeof servicesApi.create>[0]) => servicesApi.create(dto),
-    // FIX 2: NO invalidar aquí automáticamente.
-    // MyProfilePage.tsx invalida manualmente DESPUÉS de subir la foto
-    // para que la imagen aparezca en el primer render.
+    // No invalidar automáticamente — MyProfilePage lo hace manualmente
+    // DESPUÉS de subir la foto para que imageUrl ya esté en el servicio
   });
 }
 
-// Hook separado para invalidar servicios manualmente
+// Invalidar servicios manualmente después del upload
 export function useInvalidateServices() {
   const qc = useQueryClient();
   return () => qc.invalidateQueries({ queryKey: ["services"] });
@@ -34,11 +30,19 @@ export function useUpdateService() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["services"] }),
   });
 }
+// Para ADMIN: usa DELETE /services/:id (requiere rol ADMIN)
 export function useDeleteService() {
   const qc = useQueryClient();
   return useMutation({
-    // FIX 4: usar removeFromUser — valida que el servicio pertenezca al usuario
-    // DELETE /services/:userId/remove-service/:serviceId (no requiere ADMIN)
+    mutationFn: (id: number) => servicesApi.remove(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["services"] }),
+  });
+}
+
+// Para usuario normal: usa DELETE /services/:userId/remove-service/:serviceId
+export function useDeleteMyService() {
+  const qc = useQueryClient();
+  return useMutation({
     mutationFn: ({ userId, serviceId }: { userId: number; serviceId: number }) =>
       servicesApi.removeFromUser(userId, serviceId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["services"] }),
@@ -158,7 +162,12 @@ export function useDeleteRating() {
 
 // ─── Messages ─────────────────────────────────────────────────────────────────
 export function useMessages() {
-  return useQuery({ queryKey: ["messages"], queryFn: messagesApi.list });
+  return useQuery({
+    queryKey: ["messages"],
+    queryFn: messagesApi.list,
+    refetchInterval: 5000,        // refresca cada 5 segundos automáticamente
+    refetchIntervalInBackground: true, // sigue refrescando aunque la pestaña no esté activa
+  });
 }
 export function useCreateMessage() {
   const qc = useQueryClient();

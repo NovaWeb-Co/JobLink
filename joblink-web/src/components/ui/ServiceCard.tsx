@@ -4,12 +4,13 @@ import { toFullUrl } from "../../api/index";
 const CATEGORY_EMOJI: Record<string, string> = {
   "Plomería": "🔧", "Electricidad": "⚡", "Carpintería": "🪚", "Pintura": "🎨",
   "Limpieza": "🧹", "Jardinería": "🌿", "Tecnología": "💻", "Transporte": "🚚",
-  "Salud": "🩺", "Educación": "📚",
+  "Salud": "🩺", "Educación": "📚", "Otros": "📦", 
 };
 const CAT_BG: Record<string, string> = {
   "Plomería": "#E0F2FE", "Electricidad": "#FEF3C7", "Carpintería": "#FEF9C3",
   "Pintura": "#FCE7F3", "Limpieza": "#DCFCE7", "Jardinería": "#DCFCE7",
   "Tecnología": "#E0E7FF", "Transporte": "#FFF7ED", "Salud": "#F0FDF4", "Educación": "#EFF6FF",
+  "Otros": "#F1F5F9", 
 };
 
 

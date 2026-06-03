@@ -13,6 +13,25 @@ export async function http<T>(path: string, options?: RequestInit): Promise<T> {
   });
 
   if (res.status === 401) {
+    const body = await res.text();
+    // Intentar parsear el mensaje del backend
+    let backendMessage = "";
+    try {
+      const parsed = JSON.parse(body);
+      backendMessage = (parsed.message ?? "").toLowerCase();
+    } catch {
+      backendMessage = body.toLowerCase();
+    }
+
+    // Caso específico: cuenta desactivada — NO cerrar sesión
+    if (backendMessage.includes("desactivada") || backendMessage.includes("desactivado")) {
+      throw new Error(JSON.stringify({
+        type: "ACCOUNT_DISABLED",
+        message: "Tu cuenta está desactivada. Comunícate con el administrador para reactivarla.",
+      }));
+    }
+
+    // Cualquier otro 401: token expirado o inválido — cerrar sesión
     localStorage.removeItem("jl_token");
     localStorage.removeItem("jl_user");
     window.dispatchEvent(new Event("jl:logout"));

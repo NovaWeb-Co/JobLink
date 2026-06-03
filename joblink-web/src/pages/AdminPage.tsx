@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  useUsers, useDeleteUser,
+  useUsers, useDeleteUser, useReactivateUser,
   useServices, useDeleteService, useUpdateService,
   useRequests, useUpdateRequest, useDeleteRequest,
   useRatings, useDeleteRating,
@@ -67,6 +67,7 @@ export default function AdminPage() {
   const { data: messages = [], isLoading: loadM } = useMessages();
 
   const deleteUser = useDeleteUser();
+  const reactivateUser = useReactivateUser();
   const deleteService = useDeleteService();
   const updateService = useUpdateService();
   const updateRequest = useUpdateRequest();
@@ -74,33 +75,18 @@ export default function AdminPage() {
   const deleteRating = useDeleteRating();
   const deleteMessage = useDeleteMessage();
 
-  // ── REGLA: ocultar el admin de la lista de usuarios ──────────────────────
-  const users = allUsers.filter(u => u.role !== "ADMIN");
+  // Ocultar ADMIN y ROOT de la lista — solo mostrar usuarios normales
+  const users = allUsers.filter(u => u.role === "USER");
 
-  // ── Helper: eliminar usuario + sus servicios en cascada ──────────────────
-  async function handleDeleteUser(userId: number) {
-    // 1. Eliminar todos los servicios del usuario
-    const userServices = services.filter(s => s.userId === userId);
-    for (const svc of userServices) {
-      await deleteService.mutateAsync(svc.id);
-    }
-    // 2. Eliminar el usuario
-    await deleteUser.mutateAsync(userId);
-  }
-
+  // Al desactivar, el backend ya desactiva los servicios con $transaction
+  // No necesitamos hacerlo manualmente en el frontend
   function confirmDeleteUser(userId: number, userName: string) {
-    const userServices = services.filter(s => s.userId === userId);
-    const serviceCount = userServices.length;
-
     setConfirmModal({
-      title: "Eliminar usuario",
-      message: `¿Estás seguro de eliminar a ${userName}?${serviceCount > 0
-        ? ` Esto también eliminará sus ${serviceCount} servicio${serviceCount > 1 ? "s" : ""} asociado${serviceCount > 1 ? "s" : ""}.`
-        : ""
-        } Esta acción no se puede deshacer.`,
+      title: "Desactivar usuario",
+      message: `¿Desactivar a ${userName}? Sus servicios quedarán como no disponibles automáticamente. Podrás reactivar la cuenta después.`,
       onConfirm: async () => {
         setConfirmModal(null);
-        await handleDeleteUser(userId);
+        await deleteUser.mutateAsync(userId);
       },
     });
   }
@@ -207,19 +193,38 @@ export default function AdminPage() {
                         )}
                       </td>
                       <td>
-                        {/* REGLA: el admin no puede eliminarse a sí mismo */}
                         {u.id === adminUser?.id ? (
                           <span style={{ fontSize: "0.75rem", color: "#94A3B8", fontStyle: "italic" }}>
                             Tu cuenta
                           </span>
                         ) : (
-                          <button
-                            className="btn-danger"
-                            disabled={deleteUser.isPending || deleteService.isPending}
-                            onClick={() => confirmDeleteUser(u.id, `${u.name} ${u.lastname}`)}
-                          >
-                            🗑️
-                          </button>
+                          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                            {/* Indicador de estado */}
+                            {!u.isActive && (
+                              <span className="badge badge-red" style={{ fontSize: "0.65rem" }}>Inactivo</span>
+                            )}
+                            {/* Si está activo: botón desactivar */}
+                            {u.isActive ? (
+                              <button
+                                className="btn-danger"
+                                style={{ fontSize: "0.78rem" }}
+                                disabled={deleteUser.isPending || deleteService.isPending}
+                                onClick={() => confirmDeleteUser(u.id, `${u.name} ${u.lastname}`)}
+                              >
+                                🚫 Desactivar
+                              </button>
+                            ) : (
+                              /* Si está inactivo: botón reactivar */
+                              <button
+                                className="btn-primary"
+                                style={{ fontSize: "0.78rem" }}
+                                disabled={reactivateUser.isPending}
+                                onClick={() => reactivateUser.mutate(u.id)}
+                              >
+                                ♻️ Reactivar
+                              </button>
+                            )}
+                          </div>
                         )}
                       </td>
                     </tr>

@@ -226,7 +226,7 @@ export default function RootDashboardPage() {
                                             </button>
                                         )}
 
-                                        {user.role !== "ROOT" && (
+                                        {user.role !== "ROOT" && user.isActive && (
                                             <button
                                                 className="btn-danger"
                                                 onClick={() => {

@@ -37,8 +37,14 @@ export default function AuthModal() {
       const raw = String(err).replace("Error: ", "");
       try {
         const parsed = JSON.parse(raw);
+        // Error de cuenta desactivada — tipo específico de http.ts
+        if (parsed.type === "ACCOUNT_DISABLED") {
+          setError("DISABLED:" + parsed.message);
+          return;
+        }
         const msg = parsed.message;
-        setError(Array.isArray(msg) ? msg.join(", ") : msg || raw);
+        const text = Array.isArray(msg) ? msg.join(", ") : msg || raw;
+        setError(text);
       } catch {
         setError(raw);
       }
@@ -79,9 +85,14 @@ export default function AuthModal() {
           </button>
         </div>
 
-        {error && (
+        {error && error.startsWith("DISABLED:") ? (
+          <div className="alert alert-error" style={{ borderLeft: "4px solid var(--danger)", background: "#FEF2F2" }}>
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>🚫 Cuenta desactivada</div>
+            <div style={{ fontSize: "0.875rem" }}>{error.replace("DISABLED:", "")}</div>
+          </div>
+        ) : error ? (
           <div className="alert alert-error">⚠️ {error}</div>
-        )}
+        ) : null}
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
           {mode === "register" && (

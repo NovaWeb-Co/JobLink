@@ -11,9 +11,10 @@ type AuthUser = {
   email: string;
   role: Role;
   token: string;
-  profilePhoto?: string | null; // ← NUEVO
-  phone?: string | null;        // ← NUEVO
-  address?: string | null;      // ← NUEVO
+  isActive?: boolean;
+  profilePhoto?: string | null;
+  phone?: string | null;
+  address?: string | null;
 } | null;
 
 type AuthContextType = {
@@ -28,8 +29,9 @@ type AuthContextType = {
   logout: () => void;
   requireAuth: (action: () => void) => void;
   showLoginModal: boolean;
+  modalMode: "login" | "register";
   setShowLoginModal: (v: boolean) => void;
-  // ← NUEVO: actualiza campos del usuario en el contexto y localStorage
+  openModal: (mode: "login" | "register") => void;
   updateProfile: (fields: Partial<Pick<NonNullable<AuthUser>, "profilePhoto" | "phone" | "address">>) => void;
 };
 
@@ -43,10 +45,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { return null; }
   });
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [modalMode, setModalMode] = useState<"login" | "register">("login");
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   const isAdmin = user?.role === "ADMIN";
   const isRoot = user?.role === "ROOT";
+
+  function openModal(mode: "login" | "register") {
+    setModalMode(mode);
+    setShowLoginModal(true);
+  }
 
   function saveSession(token: string, userData: AuthUser) {
     if (!userData) return;
@@ -83,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: res.user.email,
       role: res.user.role,
       token: res.access_token,
+      isActive: res.user.isActive,
       profilePhoto: toFullUrl(res.user.profilePhoto) ?? null,
       phone: res.user.phone ?? null,
       address: res.user.address ?? null,
@@ -101,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: res.user.email,
       role: res.user.role,
       token: res.access_token,
+      isActive: res.user.isActive,
       profilePhoto: toFullUrl(res.user.profilePhoto) ?? null,
       phone: res.user.phone ?? null,
       address: res.user.address ?? null,
@@ -122,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user, isAdmin, isRoot, login, register, logout,
-      requireAuth, showLoginModal, setShowLoginModal,
+      requireAuth, showLoginModal, modalMode, setShowLoginModal, openModal,
       updateProfile,
     }}>
       {children}

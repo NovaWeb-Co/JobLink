@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useServices, useRatings } from "../api/queries";
 import ServiceCard from "../components/ui/ServiceCard";
 
-const CATEGORIES = ["Todas", "Plomería", "Electricidad", "Carpintería", "Pintura", "Limpieza", "Jardinería", "Tecnología", "Transporte", "Educación", "Salud"];
+const CATEGORIES = ["Todas", "Plomería", "Electricidad", "Carpintería", "Pintura", "Limpieza", "Jardinería", "Tecnología", "Transporte", "Educación", "Salud", "Otros"];
 const SORTS = [
   { value: "recent", label: "Más recientes" },
   { value: "price_asc", label: "Precio: menor a mayor" },

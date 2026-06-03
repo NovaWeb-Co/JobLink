@@ -103,7 +103,7 @@ export const usersApi = {
     }),
 
   remove: (id: number) =>
-    http<void>(`/users/${id}`, {
+    http<User>(`/users/${id}`, {
       method: "DELETE",
     }),
 

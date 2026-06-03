@@ -12,6 +12,9 @@ const CATEGORIES = [
   { id: "Jardinería", emoji: "🌿", label: "Jardinería" },
   { id: "Tecnología", emoji: "💻", label: "Tecnología" },
   { id: "Transporte", emoji: "🚚", label: "Transporte" },
+  { id: "Salud", emoji: "🩺", label: "Salud" },
+  { id: "Educación", emoji: "📚", label: "Educación" },
+  { id: "Otros", emoji: "📦", label: "Otros" },
 ];
 
 const STATS = [

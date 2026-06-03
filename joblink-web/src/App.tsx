@@ -41,13 +41,13 @@ function AppInner() {
 
   useEffect(() => {
     if (!user) return;
-
+    // ROOT y ADMIN van a su panel, usuarios normales van al HOME
     if (user.role === "ROOT") {
       setPage({ name: "root" });
     } else if (user.role === "ADMIN") {
       setPage({ name: "admin" });
     } else {
-      setPage({ name: "profile" });
+      setPage({ name: "home" });  // ← antes era "profile"
     }
   }, [user]);
 
