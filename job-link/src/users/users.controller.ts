@@ -48,22 +48,16 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-
   @Post('upload-photo')
-
   @UseInterceptors(
     FileInterceptor('file', {
-
       storage: diskStorage({
-
         destination: './uploads',
-
         filename: (
           req,
           file,
           callback,
         ) => {
-
           const fileName =
             `${Date.now()}-${file.originalname}`;
 
@@ -77,40 +71,46 @@ export class UsersController {
   )
 
   async uploadPhoto(
-
     @UploadedFile()
     file: Express.Multer.File,
-
     @Request() req,
-
   ) {
-
     const user =
       await this.usersService.uploadPhoto(
         req.user.id,
         file.filename,
       );
-
     return {
       message:
         'Foto subida correctamente',
-
       imageUrl:
         `/uploads/${file.filename}`,
-
       user,
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id/reactivate')
-  @Roles(Role.ADMIN, Role.ROOT)
   reactivate(
-    @Param('id', ParseIntPipe) id: number,
-    @Request() req: any,
+    @Param('id') id: string,
+    @Request() req,
   ) {
     return this.usersService.reactivate(
-      id,
+      +id,
       req.user.role,
+    );
+  }
+
+  @Patch(':id/role')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ROOT)
+  updateRole(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('role') role: Role,
+  ) {
+    return this.usersService.updateRole(
+      id,
+      role,
     );
   }
 }

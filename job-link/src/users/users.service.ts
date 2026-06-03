@@ -94,7 +94,6 @@ export class UsersService {
                     'El usuario ROOT no puede eliminar su propia cuenta',
                 );
             }
-
             // No puede eliminar otro ROOT
             if (targetUser.role === Role.ROOT) {
                 throw new ForbiddenException(
@@ -102,7 +101,6 @@ export class UsersService {
                 );
             }
         }
-
         return this.prisma.user.update({
             where: {
                 id: targetId,
@@ -117,12 +115,10 @@ export class UsersService {
         userId: number,
         filename: string,
     ) {
-
         return this.prisma.user.update({
             where: {
                 id: userId,
             },
-
             data: {
                 profilePhoto:
                     `/uploads/${filename}`,
@@ -131,45 +127,72 @@ export class UsersService {
     }
 
     async reactivate(
-  targetId: number,
-  currentRole: Role,
-) {
-  const user =
-    await this.prisma.user.findUnique({
-      where: { id: targetId },
-    });
+        id: number,
+        currentRole: Role,
+    ) {
+        if (currentRole !== Role.ROOT) {
+            throw new ForbiddenException(
+                'Solo ROOT puede reactivar usuarios',
+            );
+        }
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+        });
+        if (!user) {
+            throw new NotFoundException(
+                'Usuario no encontrado',
+            );
+        }
+        return this.prisma.user.update({
+            where: { id },
+            data: {
+                isActive: true,
+            },
+        });
+    }
 
-  if (!user) {
-    throw new NotFoundException(
-      'Usuario no encontrado',
-    );
-  }
+    async updateRole(
+        targetId: number,
+        newRole: Role,
+    ) {
+        const user =
+            await this.prisma.user.findUnique({
+                where: {
+                    id: targetId,
+                },
+            });
 
-  if (
-    currentRole === Role.ADMIN &&
-    user.role !== Role.USER
-  ) {
-    throw new ForbiddenException(
-      'Solo puedes reactivar usuarios normales',
-    );
-  }
+        if (!user) {
+            throw new NotFoundException(
+                'Usuario no encontrado',
+            );
+        }
 
-  if (
-    currentRole === Role.ROOT &&
-    user.role === Role.ROOT
-  ) {
-    throw new ForbiddenException(
-      'No puedes modificar otro ROOT',
-    );
-  }
+        // No modificar ROOT
+        if (user.role === Role.ROOT) {
+            throw new ForbiddenException(
+                'No puedes modificar un usuario ROOT',
+            );
+        }
 
-  return this.prisma.user.update({
-    where: {
-      id: targetId,
-    },
-    data: {
-      isActive: true,
-    },
-  });
-}
+        // Solo USER o ADMIN
+        if (
+            newRole !== Role.USER &&
+            newRole !== Role.ADMIN
+        ) {
+            throw new ForbiddenException(
+                'Rol inválido',
+            );
+        }
+
+        return this.prisma.user.update({
+            where: {
+                id: targetId,
+            },
+            data: {
+                role: newRole,
+            },
+        });
+    }
+
 }
