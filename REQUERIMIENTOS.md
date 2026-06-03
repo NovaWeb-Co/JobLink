@@ -109,4 +109,57 @@ El cliente aprobó la propuesta de implementar el sistema de autenticación, des
    - Correos electrónicos válidos.
    - Contraseñas seguras.
    - Mensajes claros de error.
+
+  ## Sesión 4 — 03/06/2026
+
+### Avances presentados al cliente
+En esta sesión se presentó una versión mucho más completa y conectada de **JobLink**, mostrando un flujo funcional integrado que incluye:
+
+- Página de inicio con navegación y búsqueda por categorías.
+- Sistema de inicio de sesión y registro (con correo o teléfono).
+- Perfil de usuario completo (foto, edición y publicación de servicios).
+- Secciones personales: “Mis servicios”, “Mis solicitudes”, “Solicitudes recibidas” y “Mensajes”.
+- Gestión de roles (Root, Administrador y Usuario).
+
+### Retroalimentación del cliente
+
+> Muy buenas tardes, equipo.  
+> Revisé el documento y primero quiero felicitarlos porque ya se siente como una plataforma mucho más completa que en las revisiones anteriores. Se nota que ya no están mostrando pantallas aisladas sino un flujo funcional entre registro, navegación, perfil y gestión de servicios.
+
+**Puntos aprobados por el cliente:**
+
+- Página de inicio con navegación y búsqueda por categorías implementada.
+- Inicio de sesión y registro con acceso mediante correo o teléfono.
+- Perfil de usuario con foto, edición y publicación de servicios.
+- Secciones personales (“Mis servicios”, “Mis solicitudes”, “Solicitudes recibidas” y “Mensajes”).
+- Gestión de roles definida entre Root, Administrador y Usuario.
+
+**Ajustes solicitados:**
+
+**Prioridad Media:**
+
+1. **Estado vacío más amigable**
+   - Mejorar los mensajes de estados vacíos para que sean más amigables e inviten a la acción (ej: publicar una solicitud, cambiar filtros, explorar otras categorías).
+
+2. **Confirmación después de acciones importantes**
+   - Mostrar confirmaciones claras después de acciones relevantes como:
+     - Publicar un servicio
+     - Actualizar perfil
+     - Enviar mensaje
+     - Cambiar foto
+
+### Resumen de acuerdos
+
+- Registro e inicio de sesión implementados.
+- Perfil y gestión de servicios disponibles.
+- Roles definidos.
+- Pendientes finales:
+  1. Mejor experiencia en estados vacíos.
+  2. Confirmaciones de acciones importantes.
+
+El cliente destacó que el proyecto ya se siente cerca de una **versión entregable** de JobLink.
+
+### Estado actual del proyecto
+- **Aprobado** : Flujo general de la plataforma (autenticación, perfil y gestión de servicios).
+- **Pendientes finales** : Pulido de experiencia de usuario (estados vacíos y confirmaciones).
   
