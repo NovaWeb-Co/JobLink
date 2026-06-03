@@ -95,8 +95,8 @@ export default function AdminPage() {
     setConfirmModal({
       title: "Eliminar usuario",
       message: `¿Estás seguro de eliminar a ${userName}?${serviceCount > 0
-          ? ` Esto también eliminará sus ${serviceCount} servicio${serviceCount > 1 ? "s" : ""} asociado${serviceCount > 1 ? "s" : ""}.`
-          : ""
+        ? ` Esto también eliminará sus ${serviceCount} servicio${serviceCount > 1 ? "s" : ""} asociado${serviceCount > 1 ? "s" : ""}.`
+        : ""
         } Esta acción no se puede deshacer.`,
       onConfirm: async () => {
         setConfirmModal(null);
@@ -158,9 +158,7 @@ export default function AdminPage() {
       <div className="tab-bar" style={{ marginBottom: "1.25rem" }}>
         <button className={`tab-btn ${tab === "users" ? "active" : ""}`} onClick={() => setTab("users")}>👤 Usuarios</button>
         <button className={`tab-btn ${tab === "services" ? "active" : ""}`} onClick={() => setTab("services")}>🔧 Servicios</button>
-        <button className={`tab-btn ${tab === "requests" ? "active" : ""}`} onClick={() => setTab("requests")}>📋 Solicitudes</button>
         <button className={`tab-btn ${tab === "ratings" ? "active" : ""}`} onClick={() => setTab("ratings")}>⭐ Reseñas</button>
-        <button className={`tab-btn ${tab === "messages" ? "active" : ""}`} onClick={() => setTab("messages")}>💬 Mensajes</button>
       </div>
 
       <div className="card" style={{ overflow: "hidden" }}>
@@ -220,7 +218,7 @@ export default function AdminPage() {
                             disabled={deleteUser.isPending || deleteService.isPending}
                             onClick={() => confirmDeleteUser(u.id, `${u.name} ${u.lastname}`)}
                           >
-                            🗑️ Eliminar
+                            🗑️
                           </button>
                         )}
                       </td>
@@ -261,7 +259,7 @@ export default function AdminPage() {
                       <td style={{ color: "var(--slate)", fontSize: "0.8rem" }}>#{s.id}</td>
                       <td><strong style={{ fontSize: "0.875rem" }}>{s.title}</strong></td>
                       <td><span className="badge badge-gold">{s.category}</span></td>
-                      <td style={{ fontFamily: "Syne, sans-serif", fontWeight: 700 }}>${s.price.toLocaleString()}</td>
+                      <td style={{ fontFamily: "Syne, sans-serif", fontWeight: 700 }}>${Number(s.price ?? 0).toLocaleString()}</td>
                       <td>{s.location ?? "-"}</td>
                       <td>
                         {/* Toggle disponibilidad */}
@@ -298,74 +296,6 @@ export default function AdminPage() {
                   <tr>
                     <td colSpan={8} style={{ textAlign: "center", padding: "2rem", color: "var(--slate)" }}>
                       No hay servicios.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          )
-        )}
-
-        {/* ── SOLICITUDES ── */}
-        {tab === "requests" && (
-          loadR ? (
-            <div style={{ padding: "2rem", textAlign: "center" }}>
-              <div className="spinner" style={{ margin: "0 auto" }} />
-            </div>
-          ) : (
-            <table className="tbl">
-              <thead>
-                <tr>
-                  <th>ID</th><th>Descripción</th><th>Estado</th>
-                  <th>Usuario</th><th>Servicio</th><th>Fecha</th><th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests.map(r => {
-                  const owner = allUsers.find(u => u.id === r.userId);
-                  const svc = services.find(s => s.id === r.serviceId);
-                  return (
-                    <tr key={r.id}>
-                      <td style={{ color: "var(--slate)", fontSize: "0.8rem" }}>#{r.id}</td>
-                      <td style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {r.description ?? "-"}
-                      </td>
-                      <td>
-                        <select
-                          className="input"
-                          value={r.status}
-                          style={{ padding: "4px 8px", fontSize: "0.78rem", width: "auto" }}
-                          onChange={e => updateRequest.mutateAsync({ id: r.id, dto: { status: e.target.value as RequestStatus } })}
-                        >
-                          {STATUS_OPTIONS.map(s => (
-                            <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td style={{ fontSize: "0.82rem" }}>
-                        {owner ? `${owner.name} ${owner.lastname}` : `#${r.userId}`}
-                      </td>
-                      <td style={{ fontSize: "0.82rem" }}>
-                        {svc ? svc.title : `#${r.serviceId}`}
-                      </td>
-                      <td style={{ fontSize: "0.78rem", color: "var(--slate)" }}>
-                        {new Date(r.createdAt).toLocaleDateString("es-CO")}
-                      </td>
-                      <td>
-                        <button
-                          className="btn-danger"
-                          onClick={() => confirmDeleteOther("solicitud", () => deleteRequest.mutate(r.id))}
-                        >
-                          🗑️
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-                {requests.length === 0 && (
-                  <tr>
-                    <td colSpan={7} style={{ textAlign: "center", padding: "2rem", color: "var(--slate)" }}>
-                      No hay solicitudes.
                     </td>
                   </tr>
                 )}

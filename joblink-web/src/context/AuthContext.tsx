@@ -19,6 +19,7 @@ type AuthUser = {
 type AuthContextType = {
   user: AuthUser;
   isAdmin: boolean;
+  isRoot: boolean;
   login: (identifier: string, password: string) => Promise<void>;
   register: (dto: {
     name: string; lastname: string; email: string; password: string;
@@ -45,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   const isAdmin = user?.role === "ADMIN";
+  const isRoot = user?.role === "ROOT";
 
   function saveSession(token: string, userData: AuthUser) {
     if (!userData) return;
@@ -119,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      user, isAdmin, login, register, logout,
+      user, isAdmin, isRoot, login, register, logout,
       requireAuth, showLoginModal, setShowLoginModal,
       updateProfile,
     }}>

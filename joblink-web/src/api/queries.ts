@@ -3,6 +3,10 @@ import {
   usersApi, servicesApi, requestsApi, ratingsApi, messagesApi,
   type Service, type User, type Request, type Rating, type Message, type RequestStatus,
 } from "./index";
+import { http } from "./http";
+
+
+
 
 // ─── Services ────────────────────────────────────────────────────────────────
 export function useServices() {
@@ -30,23 +34,60 @@ export function useDeleteService() {
   });
 }
 
-// ─── Users ───────────────────────────────────────────────────────────────────
+// ─── Users ────────────────────────────────────────────────────────────────
+
 export function useUsers() {
-  // Solo funciona si el usuario tiene rol ADMIN
-  return useQuery({ queryKey: ["users"], queryFn: usersApi.list });
-}
-export function useUpdateUser() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, dto }: { id: number; dto: Partial<User> }) => usersApi.update(id, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+  return useQuery({
+    queryKey: ["users"],
+    queryFn: usersApi.list,
   });
 }
+
+export function useUpdateUser() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      dto,
+    }: {
+      id: number;
+      dto: Partial<User>;
+    }) => usersApi.update(id, dto),
+
+    onSuccess: () =>
+      qc.invalidateQueries({
+        queryKey: ["users"],
+      }),
+  });
+}
+
 export function useDeleteUser() {
   const qc = useQueryClient();
+
   return useMutation({
-    mutationFn: (id: number) => usersApi.remove(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+    mutationFn: (id: number) =>
+      usersApi.remove(id),
+
+    onSuccess: () =>
+      qc.invalidateQueries({
+        queryKey: ["users"],
+      }),
+  });
+}
+
+export function useReactivateUser() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) =>
+      usersApi.reactivate(id),
+
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["users"],
+      });
+    },
   });
 }
 
@@ -128,5 +169,25 @@ export function useDeleteMessage() {
   return useMutation({
     mutationFn: (id: number) => messagesApi.remove(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["messages"] }),
+  });
+}
+
+export function useUpdateUserRole() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      role,
+    }: {
+      id: number;
+      role: "USER" | "ADMIN";
+    }) => usersApi.updateRole(id, role),
+
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["users"],
+      });
+    },
   });
 }

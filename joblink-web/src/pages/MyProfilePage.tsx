@@ -292,29 +292,43 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
       </div>
 
       {/* ── TABS ──────────────────────────────────────────────────────────── */}
+      {user.role !== "ADMIN" && (
       <div className="tab-bar" style={{ marginBottom: "1.5rem" }}>
-        <button className={`tab-btn ${tab === "services" ? "active" : ""}`} onClick={() => setTab("services")}>🔧 Mis servicios</button>
-        <button className={`tab-btn ${tab === "requests" ? "active" : ""}`} onClick={() => setTab("requests")}>📤 Mis solicitudes</button>
-        <button className={`tab-btn ${tab === "received" ? "active" : ""}`} onClick={() => setTab("received")}
-          style={{ position: "relative" }}>
-          📥 Solicitudes recibidas
-          {pendingCount > 0 && (
-            <span style={{
-              position: "absolute", top: 6, right: 6,
-              width: 16, height: 16, borderRadius: "50%",
-              background: "var(--danger)", color: "white",
-              fontSize: "0.6rem", fontWeight: 700,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              {pendingCount}
-            </span>
-          )}
+        {user.role !== "ADMIN" && (
+          <button
+            className={`tab-btn ${tab === "services" ? "active" : ""}`}
+            onClick={() => setTab("services")}
+          >
+            🔧 Mis servicios
+          </button>
+        )}
+
+        <button
+          className={`tab-btn ${tab === "requests" ? "active" : ""}`}
+          onClick={() => setTab("requests")}
+        >
+          📤 Mis solicitudes
         </button>
-        <button className={`tab-btn ${tab === "messages" ? "active" : ""}`} onClick={() => setTab("messages")}>💬 Mensajes</button>
+
+        <button
+          className={`tab-btn ${tab === "received" ? "active" : ""}`}
+          onClick={() => setTab("received")}
+          style={{ position: "relative" }}
+        >
+          📥 Solicitudes recibidas
+        </button>
+
+        <button
+          className={`tab-btn ${tab === "messages" ? "active" : ""}`}
+          onClick={() => setTab("messages")}
+        >
+          💬 Mensajes
+        </button>
       </div>
+      )}
 
       {/* ── TAB SERVICIOS ─────────────────────────────────────────────────── */}
-      {tab === "services" && (
+      {user.role !== "ADMIN" && tab === "services" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <button className="btn-primary" onClick={() => { resetForm(); setShowForm(true); }}>+ Publicar servicio</button>

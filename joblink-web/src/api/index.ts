@@ -1,7 +1,7 @@
 import { http } from "./http";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
-export type Role = "USER" | "ADMIN";
+export type Role = "USER" | "ADMIN" | "ROOT";
 
 export type User = {
   id: number;
@@ -89,12 +89,34 @@ export const authApi = {
 };
 
 // ─── Users (GET /users solo ADMIN, GET /users/:id público) ───────────────────
+// ─── Users ───────────────────────────────────────────────────────────────────
 export const usersApi = {
   list: () => http<User[]>("/users"),
-  get: (id: number) => http<User>(`/users/${id}`),
+
+  get: (id: number) =>
+    http<User>(`/users/${id}`),
+
   update: (id: number, dto: Partial<User>) =>
-    http<User>(`/users/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
-  remove: (id: number) => http<void>(`/users/${id}`, { method: "DELETE" }),
+    http<User>(`/users/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(dto),
+    }),
+
+  remove: (id: number) =>
+    http<void>(`/users/${id}`, {
+      method: "DELETE",
+    }),
+
+  reactivate: (id: number) =>
+    http<User>(`/users/${id}/reactivate`, {
+      method: "PATCH",
+    }),
+
+  updateRole: (id: number, role: "USER" | "ADMIN" | "ROOT") =>
+    http<User>(`/users/${id}/role`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+    }),
 };
 
 // ─── Services ────────────────────────────────────────────────────────────────
