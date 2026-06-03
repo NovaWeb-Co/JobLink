@@ -101,6 +101,15 @@ export class UsersService {
                 );
             }
         }
+        await this.prisma.service.updateMany({
+            where: {
+                userId: targetId,
+            },
+            data: {
+                availability: false,
+            },
+        });
+
         return this.prisma.user.update({
             where: {
                 id: targetId,
@@ -143,6 +152,15 @@ export class UsersService {
                 'Usuario no encontrado',
             );
         }
+        await this.prisma.service.updateMany({
+            where: {
+                userId: id,
+            },
+            data: {
+                availability: true,
+            },
+        });
+
         return this.prisma.user.update({
             where: { id },
             data: {
