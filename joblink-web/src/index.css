@@ -28,6 +28,8 @@ body {
   background: var(--slate-light);
   color: var(--navy);
   margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -60,8 +62,8 @@ h4 {
   color: var(--navy);
   font-family: 'DM Sans', sans-serif;
   font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.625rem 1.25rem;
+  font-size: 0.95rem;
+  padding: 0.7rem 1.35rem;
   border-radius: 8px;
   border: none;
   cursor: pointer;
@@ -93,8 +95,8 @@ h4 {
   color: var(--navy);
   font-family: 'DM Sans', sans-serif;
   font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.625rem 1.25rem;
+  font-size: 0.95rem;
+  padding: 0.7rem 1.35rem;
   border-radius: 8px;
   border: 1.5px solid #CBD5E1;
   cursor: pointer;
@@ -114,7 +116,7 @@ h4 {
   background: transparent;
   color: var(--slate);
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   padding: 0.5rem 1rem;
   border-radius: 8px;
   border: none;
@@ -164,8 +166,8 @@ h4 {
 .input {
   width: 100%;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.875rem;
-  padding: 0.625rem 0.875rem;
+  font-size: 0.95rem;
+  padding: 0.7rem 0.95rem;
   border: 1.5px solid #E2E8F0;
   border-radius: 8px;
   background: white;
@@ -419,7 +421,7 @@ select.input {
   padding: 0.75rem 1.25rem;
   font-family: 'DM Sans', sans-serif;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -444,7 +446,7 @@ select.input {
 .tbl {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
 }
 
 .tbl thead {
@@ -503,7 +505,7 @@ select.input {
 }
 
 .section-sub {
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   color: var(--slate);
   margin-bottom: 1.5rem;
 }
@@ -524,7 +526,7 @@ select.input {
 .alert {
   padding: 0.75rem 1rem;
   border-radius: 10px;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   margin-bottom: 1rem;
   display: flex;
   align-items: flex-start;

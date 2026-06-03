@@ -4,7 +4,7 @@ import {
   useServices, useRequests, useMessages,
   useCreateService, useUpdateService, useDeleteService,
   useCreateMessage, useRatings, useUpdateUser, useDeleteUser,
-  useUpdateRequest,
+  useUpdateRequest, useInvalidateServices,
 } from "../api/queries";
 import { useAuth } from "../context/AuthContext";
 import ImageUploader from "../components/ui/ImageUploader";
@@ -40,6 +40,7 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
   const updateReq = useUpdateRequest();
+  const invalidateServices = useInvalidateServices();
 
   // Hooks de subida de imágenes
   const profileUpload = useProfilePhotoUpload(updateProfile);
@@ -135,22 +136,19 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
     };
 
     if (editingId !== null) {
-      // Editar servicio existente
       await updateSvc.mutateAsync({ id: editingId, dto });
-
-      // Si el usuario seleccionó una nueva foto, subirla ahora
       if (pendingImgFile) {
-        const url = await serviceUpload.uploadFile(pendingImgFile, editingId);
-        if (url) setServiceImg(url);
+        await serviceUpload.uploadFile(pendingImgFile, editingId);
       }
     } else {
-      // Crear servicio nuevo
       const newService = await createSvc.mutateAsync(dto);
-
-      // Si hay foto pendiente, subirla al servicio recién creado
       if (pendingImgFile && newService?.id) {
+        // FIX 2: subir la foto primero, luego invalidar el cache
+        // así el servicio ya tiene imageUrl cuando React refetcha
         await serviceUpload.uploadFile(pendingImgFile, newService.id);
       }
+      // Invalidar manualmente DESPUÉS de que todo esté listo
+      invalidateServices();
     }
     resetForm();
   }
@@ -292,7 +290,6 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
       </div>
 
       {/* ── TABS ──────────────────────────────────────────────────────────── */}
-      {user.role !== "ADMIN" && (
       <div className="tab-bar" style={{ marginBottom: "1.5rem" }}>
         {user.role !== "ADMIN" && (
           <button
@@ -316,6 +313,17 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
           style={{ position: "relative" }}
         >
           📥 Solicitudes recibidas
+          {pendingCount > 0 && (
+            <span style={{
+              position: "absolute", top: 6, right: 6,
+              width: 16, height: 16, borderRadius: "50%",
+              background: "var(--danger)", color: "white",
+              fontSize: "0.6rem", fontWeight: 700,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              {pendingCount}
+            </span>
+          )}
         </button>
 
         <button
@@ -325,7 +333,6 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
           💬 Mensajes
         </button>
       </div>
-      )}
 
       {/* ── TAB SERVICIOS ─────────────────────────────────────────────────── */}
       {user.role !== "ADMIN" && tab === "services" && (
@@ -496,7 +503,10 @@ export default function MyProfilePage({ openPublish }: { openPublish?: boolean }
                           ✏️ Editar
                         </button>
                         <button className="btn-danger" style={{ flex: 1 }}
-                          onClick={() => { if (!confirm("¿Eliminar servicio?")) return; deleteSvc.mutate(s.id); }}>
+                          onClick={() => {
+                            if (!confirm("¿Eliminar servicio?")) return;
+                            deleteSvc.mutate({ userId: user!.id, serviceId: s.id });
+                          }}>
                           🗑️ Eliminar
                         </button>
                       </div>

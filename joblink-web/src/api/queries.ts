@@ -16,8 +16,16 @@ export function useCreateService() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (dto: Parameters<typeof servicesApi.create>[0]) => servicesApi.create(dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["services"] }),
+    // FIX 2: NO invalidar aquí automáticamente.
+    // MyProfilePage.tsx invalida manualmente DESPUÉS de subir la foto
+    // para que la imagen aparezca en el primer render.
   });
+}
+
+// Hook separado para invalidar servicios manualmente
+export function useInvalidateServices() {
+  const qc = useQueryClient();
+  return () => qc.invalidateQueries({ queryKey: ["services"] });
 }
 export function useUpdateService() {
   const qc = useQueryClient();
@@ -29,7 +37,10 @@ export function useUpdateService() {
 export function useDeleteService() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => servicesApi.remove(id),
+    // FIX 4: usar removeFromUser — valida que el servicio pertenezca al usuario
+    // DELETE /services/:userId/remove-service/:serviceId (no requiere ADMIN)
+    mutationFn: ({ userId, serviceId }: { userId: number; serviceId: number }) =>
+      servicesApi.removeFromUser(userId, serviceId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["services"] }),
   });
 }
