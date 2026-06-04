@@ -10,7 +10,6 @@ export function useServices() {
   return useQuery({ queryKey: ["services"], queryFn: servicesApi.list });
 }
 export function useCreateService() {
-  const qc = useQueryClient();
   return useMutation({
     mutationFn: (dto: Parameters<typeof servicesApi.create>[0]) => servicesApi.create(dto),
     // No invalidar automáticamente — MyProfilePage lo hace manualmente

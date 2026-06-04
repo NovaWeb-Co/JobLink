@@ -2,18 +2,12 @@ import { useState } from "react";
 import {
   useUsers, useDeleteUser, useReactivateUser,
   useServices, useDeleteService, useUpdateService,
-  useRequests, useUpdateRequest, useDeleteRequest,
+  useRequests,
   useRatings, useDeleteRating,
   useMessages, useDeleteMessage,
 } from "../api/queries";
 import { useAuth } from "../context/AuthContext";
-import type { RequestStatus } from "../api/index";
 
-const STATUS_OPTIONS: RequestStatus[] = ["PENDING", "ACCEPTED", "COMPLETED", "CANCELED"];
-const STATUS_LABELS: Record<string, string> = {
-  PENDING: "Pendiente", ACCEPTED: "Aceptado",
-  COMPLETED: "Completado", CANCELED: "Cancelado",
-};
 
 // Modal de confirmación para eliminaciones críticas
 function ConfirmModal({
@@ -52,7 +46,7 @@ function ConfirmModal({
 }
 
 export default function AdminPage() {
-  const { user: adminUser, logout } = useAuth();
+  const { user: adminUser } = useAuth();
   const [tab, setTab] = useState<"users" | "services" | "requests" | "ratings" | "messages">("users");
 
   // Modal de confirmación
@@ -62,7 +56,7 @@ export default function AdminPage() {
 
   const { data: allUsers = [], isLoading: loadU } = useUsers();
   const { data: services = [], isLoading: loadS } = useServices();
-  const { data: requests = [], isLoading: loadR } = useRequests();
+  const { data: requests = [] } = useRequests();
   const { data: ratings = [], isLoading: loadRa } = useRatings();
   const { data: messages = [], isLoading: loadM } = useMessages();
 
@@ -70,8 +64,6 @@ export default function AdminPage() {
   const reactivateUser = useReactivateUser();
   const deleteService = useDeleteService();
   const updateService = useUpdateService();
-  const updateRequest = useUpdateRequest();
-  const deleteRequest = useDeleteRequest();
   const deleteRating = useDeleteRating();
   const deleteMessage = useDeleteMessage();
 
