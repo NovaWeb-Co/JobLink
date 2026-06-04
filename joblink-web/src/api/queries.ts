@@ -177,6 +177,17 @@ export function useCreateMessage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["messages"] }),
   });
 }
+
+// Marca todos los mensajes no leídos de una conversación como leídos
+export function useMarkMessagesRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (messageIds: number[]) =>
+      Promise.all(messageIds.map(id => messagesApi.update(id, { isRead: true }))),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["messages"] }),
+  });
+}
+
 export function useUpdateMessage() {
   const qc = useQueryClient();
   return useMutation({
